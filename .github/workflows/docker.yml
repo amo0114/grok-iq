@@ -6,6 +6,12 @@ on:
     tags: ["v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Target platforms for the image build"
+        required: true
+        default: "linux/amd64,linux/arm64"
+        type: string
 
 permissions:
   contents: read
@@ -86,7 +92,9 @@ jobs:
         id: platforms
         shell: bash
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            echo "value=${{ inputs.platforms }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             echo "value=linux/amd64,linux/arm64" >> "$GITHUB_OUTPUT"
           else
             echo "value=linux/amd64" >> "$GITHUB_OUTPUT"
