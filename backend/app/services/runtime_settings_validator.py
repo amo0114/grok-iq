@@ -290,6 +290,18 @@ class RuntimeSettingsValidator:
         candidate.proxy_pool_gateway_sticky = (
             candidate.proxy_pool_gateway_sticky or ""
         ).strip() or "1"
+        candidate.proxy_pool_resin_proxy_token = (
+            candidate.proxy_pool_resin_proxy_token or ""
+        ).strip()
+
+        platform_prefix = (candidate.proxy_pool_platform_prefix or "").strip()
+        if platform_prefix and not re.fullmatch(
+            r"[A-Za-z0-9][A-Za-z0-9._-]{0,47}", platform_prefix
+        ):
+            raise ValueError(
+                "自动出口平台前缀需为 1-48 位字母、数字、点、下划线或连字符"
+            )
+        candidate.proxy_pool_platform_prefix = platform_prefix
 
         if candidate.proxy_pool_resin_base_url:
             parsed = urlsplit(candidate.proxy_pool_resin_base_url)

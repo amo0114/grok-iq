@@ -129,6 +129,7 @@ probe_manager.register_integration = register_integration_service
 proxy_pool_service = ProxyPoolService(
     settings=settings,
     repository=proxy_pool_repository,
+    grok=grok_client,
 )
 update_check_service = UpdateCheckService()
 

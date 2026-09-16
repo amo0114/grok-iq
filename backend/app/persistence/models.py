@@ -650,6 +650,13 @@ class ProxyPoolGroup(Base):
     subscription_id: Mapped[str] = mapped_column(
         String(64), default="", nullable=False
     )
+    platform_name: Mapped[str] = mapped_column(
+        String(160), default="", nullable=False
+    )
+    egress_node_id: Mapped[int | None] = mapped_column(Integer)
+    egress_node_name: Mapped[str] = mapped_column(
+        String(160), default="", nullable=False
+    )
     size: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     scheme: Mapped[str] = mapped_column(String(16), default="socks5", nullable=False)
     proxies: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)

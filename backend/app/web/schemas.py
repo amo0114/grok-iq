@@ -684,6 +684,16 @@ class ProxyPoolConfigInput(BaseModel):
         default=None, alias="gatewaySticky", max_length=32
     )
     over_factor: int | None = Field(default=None, alias="overFactor", ge=1, le=10)
+    platform_prefix: str | None = Field(
+        default=None, alias="platformPrefix", max_length=48
+    )
+    auto_egress: bool | None = Field(default=None, alias="autoEgress")
+    egress_capacity_factor: int | None = Field(
+        default=None, alias="egressCapacityFactor", ge=1, le=10
+    )
+    resin_proxy_token: str | None = Field(
+        default=None, alias="resinProxyToken", max_length=4000
+    )
 
 
 class ProxyPoolImportInput(BaseModel):
@@ -692,6 +702,10 @@ class ProxyPoolImportInput(BaseModel):
 
 class ProxyPoolDeleteInput(BaseModel):
     ids: list[int] = Field(min_length=1, max_length=1000)
+
+
+class ProxyPoolEgressInput(BaseModel):
+    enabled: bool
 
 
 class ProbePlanInput(BaseModel):

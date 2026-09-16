@@ -699,6 +699,10 @@ export type ProxyPoolConfig = {
   gatewayRegion: string
   gatewaySticky: string
   overFactor: number
+  platformPrefix: string
+  autoEgress: boolean
+  egressCapacityFactor: number
+  resinProxyTokenConfigured: boolean
 }
 
 export type ProxyPoolConfigInput = {
@@ -719,6 +723,10 @@ export type ProxyPoolConfigInput = {
   gatewayRegion?: string
   gatewaySticky?: string
   overFactor?: number
+  platformPrefix?: string
+  autoEgress?: boolean
+  egressCapacityFactor?: number
+  resinProxyToken?: string
 }
 
 export type ProxyPoolGroup = {
@@ -726,6 +734,10 @@ export type ProxyPoolGroup = {
   index: number
   name: string
   subscriptionId: string
+  platformName: string
+  egressNodeId: number | null
+  egressNodeName: string
+  egressEnabled?: boolean | null
   size: number
   scheme: string
   status: string
@@ -742,6 +754,8 @@ export type ProxyPoolGroupsResponse = {
   groupSize: number
   leaseHours: number
   prefix: string
+  platformPrefix: string
+  autoEgress: boolean
 }
 
 export type ProxyPoolPreview = {
@@ -1600,6 +1614,7 @@ export type ProxyPoolSecretName =
   | 'proxyPoolApiUrlTemplate'
   | 'proxyPoolResinAdminToken'
   | 'proxyPoolGatewayPassword'
+  | 'proxyPoolResinProxyToken'
 
 export type RuntimeSettingsUpdate = Partial<
   Pick<
@@ -3226,6 +3241,15 @@ export const api = {
     request<ProxyPoolDeleteResult>('/proxy-pool/groups', {
       method: 'DELETE',
       body: JSON.stringify({ ids }),
+    }),
+  setProxyPoolGroupEgress: (groupId: number, enabled: boolean) =>
+    request<ProxyPoolGroup>(`/proxy-pool/groups/${groupId}/egress`, {
+      method: 'POST',
+      body: JSON.stringify({ enabled }),
+    }),
+  syncProxyPoolEgress: () =>
+    request<ProxyPoolGroupsResponse>('/proxy-pool/sync-egress', {
+      method: 'POST',
     }),
   profiles: () => request<ProbeProfile[]>('/probe-profiles'),
   createProfile: (body: Record<string, unknown>) =>

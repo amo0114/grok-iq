@@ -9,6 +9,7 @@ from app.services.settings_service import RuntimeSettingsService
 from app.web.schemas import (
     ProxyPoolConfigInput,
     ProxyPoolDeleteInput,
+    ProxyPoolEgressInput,
     ProxyPoolImportInput,
 )
 
@@ -32,6 +33,10 @@ CONFIG_FIELD_MAP = {
     "gateway_region": "proxy_pool_gateway_region",
     "gateway_sticky": "proxy_pool_gateway_sticky",
     "over_factor": "proxy_pool_over_factor",
+    "platform_prefix": "proxy_pool_platform_prefix",
+    "auto_egress": "proxy_pool_auto_egress",
+    "egress_capacity_factor": "proxy_pool_egress_capacity_factor",
+    "resin_proxy_token": "proxy_pool_resin_proxy_token",
 }
 
 
@@ -63,8 +68,8 @@ def build_proxy_pools_router(
         }
 
     @router.get("/proxy-pool/groups")
-    def list_proxy_pool_groups() -> dict[str, Any]:
-        return service.list_groups()
+    async def list_proxy_pool_groups() -> dict[str, Any]:
+        return await service.list_groups()
 
     @router.post("/proxy-pool/preview")
     async def preview_proxy_pool(
@@ -91,6 +96,17 @@ def build_proxy_pools_router(
     @router.post("/proxy-pool/groups/{group_id}/refresh")
     async def refresh_proxy_pool_group(group_id: int) -> dict[str, Any]:
         return await service.refresh_group(group_id)
+
+    @router.post("/proxy-pool/groups/{group_id}/egress")
+    async def set_proxy_pool_group_egress(
+        group_id: int,
+        payload: ProxyPoolEgressInput,
+    ) -> dict[str, Any]:
+        return await service.set_group_egress(group_id, enabled=payload.enabled)
+
+    @router.post("/proxy-pool/sync-egress")
+    async def sync_proxy_pool_egress() -> dict[str, Any]:
+        return await service.sync_egress_now()
 
     @router.delete("/proxy-pool/groups")
     async def delete_proxy_pool_groups(

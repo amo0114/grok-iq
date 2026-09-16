@@ -5,6 +5,22 @@ import json
 from sqlalchemy import Engine, inspect
 
 COMPATIBILITY_COLUMNS = {
+    "proxy_pool_groups": [
+        (
+            "platform_name",
+            "ALTER TABLE proxy_pool_groups ADD COLUMN platform_name VARCHAR(160) "
+            "NOT NULL DEFAULT ''",
+        ),
+        (
+            "egress_node_id",
+            "ALTER TABLE proxy_pool_groups ADD COLUMN egress_node_id INTEGER",
+        ),
+        (
+            "egress_node_name",
+            "ALTER TABLE proxy_pool_groups ADD COLUMN egress_node_name VARCHAR(160) "
+            "NOT NULL DEFAULT ''",
+        ),
+    ],
     "account_assessments": [
         (
             "recovery_guarded",

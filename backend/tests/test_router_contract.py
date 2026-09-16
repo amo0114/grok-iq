@@ -116,6 +116,8 @@ EXPECTED_ROUTES = {
     ("POST", "/api/proxy-pool/import"),
     ("POST", "/api/proxy-pool/refresh"),
     ("POST", "/api/proxy-pool/groups/{group_id}/refresh"),
+    ("POST", "/api/proxy-pool/groups/{group_id}/egress"),
+    ("POST", "/api/proxy-pool/sync-egress"),
     ("DELETE", "/api/proxy-pool/groups"),
 }
 

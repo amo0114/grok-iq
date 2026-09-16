@@ -124,6 +124,13 @@ class Settings(BaseSettings):
     # Gateway sids fail at a non-trivial rate, so generate more than the target
     # and let Resin keep the healthy ones.
     proxy_pool_over_factor: int = Field(default=2, ge=1, le=10)
+    # Auto-wiring: each imported group also gets a Resin Platform (regex on the
+    # subscription name) and a grok2api egress node pointing at that platform,
+    # so a group is usable end to end without manual steps.
+    proxy_pool_platform_prefix: str = "g1024"
+    proxy_pool_auto_egress: bool = True
+    proxy_pool_egress_capacity_factor: int = Field(default=2, ge=1, le=10)
+    proxy_pool_resin_proxy_token: str = ""
     initial_probe_on_register: bool = True
     register_probe_stabilization_seconds: float = Field(
         default=DEFAULT_REGISTER_PROBE_STABILIZATION_SECONDS,
@@ -293,6 +300,10 @@ class Settings(BaseSettings):
         "proxy_pool_gateway_region",
         "proxy_pool_gateway_sticky",
         "proxy_pool_over_factor",
+        "proxy_pool_platform_prefix",
+        "proxy_pool_auto_egress",
+        "proxy_pool_egress_capacity_factor",
+        "proxy_pool_resin_proxy_token",
         "initial_probe_on_register",
         "register_probe_stabilization_seconds",
         "register_probe_profile_ids",
@@ -389,6 +400,7 @@ class Settings(BaseSettings):
             "proxy_pool_1024_api_url_template",
             "proxy_pool_resin_admin_token",
             "proxy_pool_gateway_password",
+            "proxy_pool_resin_proxy_token",
         }
     )
 

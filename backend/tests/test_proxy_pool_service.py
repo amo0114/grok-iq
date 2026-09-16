@@ -173,6 +173,113 @@ async def test_gateway_mode_generates_sid_nodes(tmp_path):
     assert all("-region-SG-sid-" in proxy for proxy in groups[0]["proxies"])
 
 
+class FakeGrok:
+    def __init__(self) -> None:
+        self.nodes: dict[str, dict] = {}
+        self._seq = 0
+        self.enabled_calls: list[tuple[list[int], bool]] = []
+
+    async def list_egress_nodes(self, **params):
+        return {"items": list(self.nodes.values())}
+
+    async def create_egress_node(self, *, name, proxy_url, proxy_pool, account_capacity, enabled):
+        self._seq += 1
+        node = {
+            "id": self._seq,
+            "name": name,
+            "enabled": enabled,
+            "accountCapacity": account_capacity,
+            "proxyURL": proxy_url,
+        }
+        self.nodes[name] = node
+        return node
+
+    async def update_egress_node(
+        self, node_id, *, name, proxy_pool, account_capacity, enabled, proxy_url=None
+    ):
+        for node in self.nodes.values():
+            if node["id"] == node_id:
+                node.update({"name": name, "accountCapacity": account_capacity, "proxyURL": proxy_url})
+                return node
+        return {}
+
+    async def delete_egress_nodes(self, node_ids):
+        for name, node in list(self.nodes.items()):
+            if node["id"] in node_ids:
+                del self.nodes[name]
+        return {"deleted": len(node_ids)}
+
+    async def set_egress_nodes_enabled(self, node_ids, enabled):
+        self.enabled_calls.append((list(node_ids), enabled))
+        for node in self.nodes.values():
+            if node["id"] in node_ids:
+                node["enabled"] = enabled
+        return {"updated": len(node_ids)}
+
+
+async def test_import_auto_creates_platform_and_egress(tmp_path, monkeypatch):
+    calls: list[int] = []
+    patch_fetch(monkeypatch, calls)
+    resin = FakeResin()
+    grok = FakeGrok()
+    database = Database(tmp_path / "grokiq.db")
+    database.initialize()
+    settings = Settings(_env_file=None)
+    settings.proxy_pool_1024_api_url_template = "https://api.test/extract?num={num}"
+    settings.proxy_pool_group_size = 50
+    settings.proxy_pool_target_ip_count = 100
+    settings.proxy_pool_over_factor = 1
+    settings.proxy_pool_subscription_prefix = "grokiq-1024"
+    settings.proxy_pool_platform_prefix = "g1024"
+    settings.proxy_pool_auto_egress = True
+    settings.proxy_pool_egress_capacity_factor = 2
+    settings.proxy_pool_resin_proxy_token = "proxy-token"
+    repository = ProxyPoolRepository(database)
+    service = ProxyPoolService(
+        settings=settings, repository=repository, resin=resin, grok=grok
+    )
+
+    # give FakeResin the platform API surface
+    resin.platforms = {}
+
+    async def list_platforms():
+        return list(resin.platforms.values())
+
+    async def create_platform(*, name, regex_filters, allocation_policy="BALANCED"):
+        platform = {"id": name, "name": name, "regex_filters": list(regex_filters)}
+        resin.platforms[name] = platform
+        return platform
+
+    async def update_platform(platform_id, *, regex_filters=None, allocation_policy=None):
+        resin.platforms[platform_id]["regex_filters"] = list(regex_filters or [])
+        return resin.platforms[platform_id]
+
+    async def delete_platform(platform_id):
+        resin.platforms.pop(platform_id, None)
+
+    resin.list_platforms = list_platforms
+    resin.create_platform = create_platform
+    resin.update_platform = update_platform
+    resin.delete_platform = delete_platform
+
+    result = await service.import_groups()
+
+    assert result["created"] == 2
+    groups = {group["name"]: group for group in repository.list_groups()}
+    assert groups["grokiq-1024-01"]["platform_name"] == "g1024-01"
+    assert groups["grokiq-1024-02"]["platform_name"] == "g1024-02"
+    assert resin.platforms["g1024-01"]["regex_filters"] == ["^grokiq-1024-01/"]
+    assert grok.nodes["g1024-01"]["accountCapacity"] == 100
+    assert "@resin:2260" in grok.nodes["g1024-01"]["proxyURL"]
+    assert grok.nodes["g1024-01"]["proxyURL"].startswith("socks5h://g1024-01.{account}:proxy-token@")
+
+    toggled = await service.set_group_egress(
+        int(groups["grokiq-1024-01"]["id"]), enabled=False
+    )
+    assert toggled["name"] == "grokiq-1024-01"
+    assert grok.enabled_calls[-1] == ([1], False)
+
+
 async def test_refresh_due_only_runs_when_enabled_and_expired(tmp_path, monkeypatch):
     calls: list[int] = []
     patch_fetch(monkeypatch, calls)

@@ -10,6 +10,8 @@ import {
   Link2,
   Loader2,
   Plus,
+  Power,
+  PowerOff,
   RefreshCw,
   Server,
   Settings2,
@@ -86,6 +88,10 @@ type ConfigForm = {
   gatewayRegion: string
   gatewaySticky: string
   overFactor: string
+  platformPrefix: string
+  autoEgress: boolean
+  egressCapacityFactor: string
+  resinProxyToken: string
 }
 
 const emptyConfigForm: ConfigForm = {
@@ -106,6 +112,10 @@ const emptyConfigForm: ConfigForm = {
   gatewayRegion: 'SG',
   gatewaySticky: '1',
   overFactor: '2',
+  platformPrefix: 'g1024',
+  autoEgress: true,
+  egressCapacityFactor: '2',
+  resinProxyToken: '',
 }
 
 function positiveInt(value: string): number | undefined {
@@ -124,6 +134,7 @@ export function ProxyPoolPage() {
   const [clearApiUrl, setClearApiUrl] = useState(false)
   const [clearAdminToken, setClearAdminToken] = useState(false)
   const [clearGatewayPassword, setClearGatewayPassword] = useState(false)
+  const [clearResinProxyToken, setClearResinProxyToken] = useState(false)
   const [totalOverride, setTotalOverride] = useState('')
   const [preview, setPreview] = useState<ProxyPoolPreview | null>(null)
   const [lastImport, setLastImport] = useState<ProxyPoolImportResult | null>(
@@ -206,6 +217,29 @@ export function ProxyPoolPage() {
     onError: (error) => toast.error(getErrorMessage(error)),
   })
 
+  const egressMutation = useMutation({
+    mutationFn: ({ groupId, enabled }: { groupId: number; enabled: boolean }) =>
+      api.setProxyPoolGroupEgress(groupId, enabled),
+    onSuccess: (group, variables) => {
+      toast.success(
+        `${group.name} 出口已${variables.enabled ? '启用' : '停用'}`
+      )
+      void queryClient.invalidateQueries({ queryKey: ['proxy-pool-groups'] })
+      void queryClient.invalidateQueries({ queryKey: ['egress-nodes'] })
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
+
+  const syncEgressMutation = useMutation({
+    mutationFn: () => api.syncProxyPoolEgress(),
+    onSuccess: (result) => {
+      toast.success(`已同步 ${result.total} 个分组的平台与出口`)
+      void queryClient.invalidateQueries({ queryKey: ['proxy-pool-groups'] })
+      void queryClient.invalidateQueries({ queryKey: ['egress-nodes'] })
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
+
   const deleteMutation = useMutation({
     mutationFn: (ids: number[]) => api.deleteProxyPoolGroups(ids),
     onSuccess: (result) => {
@@ -228,7 +262,9 @@ export function ProxyPoolPage() {
     importMutation.isPending ||
     refreshAllMutation.isPending ||
     refreshGroupMutation.isPending ||
-    deleteMutation.isPending
+    deleteMutation.isPending ||
+    egressMutation.isPending ||
+    syncEgressMutation.isPending
   const showTableLoading = groupsQuery.isFetching
 
   const openConfig = () => {
@@ -250,29 +286,37 @@ export function ProxyPoolPage() {
       gatewayRegion: config?.gatewayRegion ?? 'SG',
       gatewaySticky: config?.gatewaySticky ?? '1',
       overFactor: String(config?.overFactor ?? 2),
+      platformPrefix: config?.platformPrefix ?? 'g1024',
+      autoEgress: config?.autoEgress ?? true,
+      egressCapacityFactor: String(config?.egressCapacityFactor ?? 2),
+      resinProxyToken: '',
     })
     setClearApiUrl(false)
     setClearAdminToken(false)
     setClearGatewayPassword(false)
+    setClearResinProxyToken(false)
     setConfigOpen(true)
   }
 
   const revealSecrets = async () => {
     try {
-      const [template, token, password] = await Promise.all([
+      const [template, token, password, proxyToken] = await Promise.all([
         api.revealSettingSecret('proxyPoolApiUrlTemplate'),
         api.revealSettingSecret('proxyPoolResinAdminToken'),
         api.revealSettingSecret('proxyPoolGatewayPassword'),
+        api.revealSettingSecret('proxyPoolResinProxyToken'),
       ])
       setConfigForm((current) => ({
         ...current,
         apiUrlTemplate: template.value,
         resinAdminToken: token.value,
         gatewayPassword: password.value,
+        resinProxyToken: proxyToken.value,
       }))
       setClearApiUrl(false)
       setClearAdminToken(false)
       setClearGatewayPassword(false)
+      setClearResinProxyToken(false)
     } catch (error) {
       toast.error(getErrorMessage(error))
     }
@@ -294,6 +338,9 @@ export function ProxyPoolPage() {
       gatewayRegion: configForm.gatewayRegion.trim(),
       gatewaySticky: configForm.gatewaySticky.trim(),
       overFactor: positiveInt(configForm.overFactor),
+      platformPrefix: configForm.platformPrefix.trim(),
+      autoEgress: configForm.autoEgress,
+      egressCapacityFactor: positiveInt(configForm.egressCapacityFactor),
     }
     const template = configForm.apiUrlTemplate.trim()
     if (template) payload.apiUrlTemplate = template
@@ -304,6 +351,9 @@ export function ProxyPoolPage() {
     const password = configForm.gatewayPassword.trim()
     if (password) payload.gatewayPassword = password
     else if (clearGatewayPassword) payload.gatewayPassword = ''
+    const proxyToken = configForm.resinProxyToken.trim()
+    if (proxyToken) payload.resinProxyToken = proxyToken
+    else if (clearResinProxyToken) payload.resinProxyToken = ''
     saveConfigMutation.mutate(payload)
   }
 
@@ -344,6 +394,14 @@ export function ProxyPoolPage() {
               onClick={() => refreshAllMutation.mutate()}
             >
               <RefreshCw />
+            </ToolbarAction>
+            <ToolbarAction
+              label='同步平台与出口节点'
+              disabled={actionPending || groups.length === 0}
+              pending={syncEgressMutation.isPending}
+              onClick={() => syncEgressMutation.mutate()}
+            >
+              <Link2 />
             </ToolbarAction>
             <ToolbarAction
               label='刷新列表'
@@ -503,6 +561,7 @@ export function ProxyPoolPage() {
                 </TableHead>
                 <TableHead>分组</TableHead>
                 <TableHead>Resin 订阅</TableHead>
+                <TableHead>平台 / 出口</TableHead>
                 <TableHead className='text-center'>代理数</TableHead>
                 <TableHead className='text-center'>状态</TableHead>
                 <TableHead>租约到期</TableHead>
@@ -550,6 +609,34 @@ export function ProxyPoolPage() {
                         {group.subscriptionId || '—'}
                       </div>
                     </TableCell>
+                    <TableCell>
+                      {group.platformName ? (
+                        <div className='flex items-center gap-1.5'>
+                          <span className='truncate font-medium'>
+                            {group.platformName}
+                          </span>
+                          {group.egressEnabled === false ? (
+                            <Badge
+                              variant='outline'
+                              className='h-5 shrink-0 px-1.5 text-[11px] text-amber-600 dark:text-amber-400'
+                            >
+                              出口已停
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant='outline'
+                              className='h-5 shrink-0 px-1.5 text-[11px]'
+                            >
+                              出口启用
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className='text-xs text-muted-foreground'>
+                          未自动创建
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell className='text-center tabular-nums'>
                       {group.size}
                     </TableCell>
@@ -568,6 +655,40 @@ export function ProxyPoolPage() {
                     </TableCell>
                     <TableCell className='text-right'>
                       <div className='inline-flex items-center gap-0.5'>
+                        {group.platformName && group.egressNodeId ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size='icon'
+                                variant='ghost'
+                                className={cn(
+                                  'size-7',
+                                  group.egressEnabled === false &&
+                                    'text-amber-600 dark:text-amber-400'
+                                )}
+                                disabled={actionPending}
+                                onClick={() =>
+                                  egressMutation.mutate({
+                                    groupId: group.id,
+                                    enabled: group.egressEnabled === false,
+                                  })
+                                }
+                                aria-label={`切换分组出口 ${group.platformName}`}
+                              >
+                                {group.egressEnabled === false ? (
+                                  <Power />
+                                ) : (
+                                  <PowerOff />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {group.egressEnabled === false
+                                ? '启用该组出口节点'
+                                : '停用该组出口节点'}
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : null}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -1011,6 +1132,102 @@ export function ProxyPoolPage() {
                   }))
                 }
                 placeholder='grokiq-1024'
+              />
+            </div>
+            <div className='space-y-1.5'>
+              <Label htmlFor='proxy-pool-platform-prefix'>平台/出口前缀</Label>
+              <Input
+                id='proxy-pool-platform-prefix'
+                value={configForm.platformPrefix}
+                onChange={(event) =>
+                  setConfigForm((current) => ({
+                    ...current,
+                    platformPrefix: event.target.value,
+                  }))
+                }
+                placeholder='g1024'
+              />
+            </div>
+            <div className='space-y-1.5'>
+              <Label htmlFor='proxy-pool-egress-cap'>出口账号容量倍数</Label>
+              <Input
+                id='proxy-pool-egress-cap'
+                type='number'
+                min={1}
+                max={10}
+                value={configForm.egressCapacityFactor}
+                onChange={(event) =>
+                  setConfigForm((current) => ({
+                    ...current,
+                    egressCapacityFactor: event.target.value,
+                  }))
+                }
+                placeholder='2'
+              />
+            </div>
+            <div className='space-y-1.5 sm:col-span-2'>
+              <div className='flex min-h-5 items-center justify-between gap-2'>
+                <div className='flex items-center gap-1.5'>
+                  <Label htmlFor='proxy-pool-resin-proxy'>
+                    Resin 代理 Token
+                  </Label>
+                  <InfoTooltip
+                    label='Resin 代理 Token'
+                    content='RESIN_PROXY_TOKEN。自动创建的出口节点用它拼代理地址（socks5h://平台.{account}:token@resin:2260），只写不回显。'
+                  />
+                </div>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='ghost'
+                  className='h-6 px-2 text-xs'
+                  disabled={!config?.resinProxyTokenConfigured}
+                  onClick={() => {
+                    setClearResinProxyToken(true)
+                    setConfigForm((current) => ({
+                      ...current,
+                      resinProxyToken: '',
+                    }))
+                  }}
+                >
+                  清除已保存
+                </Button>
+              </div>
+              <Input
+                id='proxy-pool-resin-proxy'
+                type='password'
+                autoComplete='off'
+                value={configForm.resinProxyToken}
+                onChange={(event) => {
+                  setClearResinProxyToken(false)
+                  setConfigForm((current) => ({
+                    ...current,
+                    resinProxyToken: event.target.value,
+                  }))
+                }}
+                placeholder={
+                  config?.resinProxyTokenConfigured
+                    ? '已配置，留空保持不变'
+                    : 'RESIN_PROXY_TOKEN'
+                }
+              />
+            </div>
+            <div className='flex items-center justify-between gap-4 rounded-lg border px-3 py-2 sm:col-span-2'>
+              <div className='flex items-center gap-1.5 text-sm font-medium'>
+                自动创建平台与出口节点
+                <InfoTooltip
+                  label='自动创建平台与出口节点'
+                  content='开启后，导入分组时自动在 Resin 建同名平台、在 grok2api 建同名的 grok_build 出口节点，并填好代理地址与容量，实现导入即用。'
+                />
+              </div>
+              <Switch
+                checked={configForm.autoEgress}
+                onCheckedChange={(value) =>
+                  setConfigForm((current) => ({
+                    ...current,
+                    autoEgress: value,
+                  }))
+                }
               />
             </div>
             <div className='flex items-center justify-between gap-4 rounded-lg border px-3 py-2 sm:col-span-2'>

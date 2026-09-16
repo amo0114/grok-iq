@@ -7,6 +7,7 @@ from typing import Any
 
 from app.core.clock import utc_now
 from app.core.config import Settings
+from app.integrations.grok2api.client import Grok2APIClient, IntegrationError
 from app.integrations.proxy1024 import (
     Proxy1024Error,
     fetch_proxies,
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 SCAN_INTERVAL_SECONDS = 60.0
 DEFAULT_PREFIX = "grokiq-1024"
+DEFAULT_PLATFORM_PREFIX = "g1024"
 
 
 class ProxyPoolService:
@@ -36,10 +38,12 @@ class ProxyPoolService:
         settings: Settings,
         repository: ProxyPoolRepository,
         resin: ResinClient | None = None,
+        grok: Grok2APIClient | None = None,
     ):
         self.settings = settings
         self.repository = repository
         self.resin = resin or ResinClient(settings)
+        self.grok = grok
         self._task: asyncio.Task[None] | None = None
         self._wake = asyncio.Event()
 
@@ -60,14 +64,36 @@ class ProxyPoolService:
     def wake(self) -> None:
         self._wake.set()
 
-    def list_groups(self) -> dict[str, Any]:
-        groups = [self._public_group(group) for group in self.repository.list_groups()]
+    async def list_groups(self) -> dict[str, Any]:
+        raw = self.repository.list_groups()
+        enabled_map: dict[str, bool] = {}
+        if self.settings.proxy_pool_auto_egress and self.grok is not None:
+            try:
+                payload = await self.grok.list_egress_nodes(
+                    scope="grok_build", pageSize=1000
+                )
+                for node in payload.get("items") or []:
+                    if isinstance(node, dict) and node.get("name"):
+                        enabled_map[str(node["name"])] = bool(node.get("enabled"))
+            except IntegrationError:
+                enabled_map = {}
+        groups = [
+            self._public_group(
+                group,
+                egress_enabled=enabled_map.get(
+                    str(group.get("egress_node_name") or ""), None
+                ),
+            )
+            for group in raw
+        ]
         return {
             "groups": groups,
             "total": len(groups),
             "groupSize": self.settings.proxy_pool_group_size,
             "leaseHours": self.settings.proxy_pool_lease_hours,
             "prefix": self._prefix(),
+            "platformPrefix": self._platform_prefix(),
+            "autoEgress": self.settings.proxy_pool_auto_egress,
         }
 
     async def preview(self, *, total: int | None = None) -> dict[str, Any]:
@@ -158,20 +184,46 @@ class ProxyPoolService:
         groups = {int(group["id"]): group for group in self.repository.list_groups()}
         removed_remote = 0
         remote_errors: list[dict[str, Any]] = []
+        prefix = self._platform_prefix()
         for group_id in dict.fromkeys(int(value) for value in group_ids):
             group = groups.get(group_id)
             if group is None:
                 continue
             subscription_id = str(group.get("subscription_id") or "")
-            if not subscription_id:
-                continue
-            try:
-                await self.resin.delete_subscription(subscription_id)
-                removed_remote += 1
-            except ResinError as exc:
-                if not exc.not_found:
+            if subscription_id:
+                try:
+                    await self.resin.delete_subscription(subscription_id)
+                    removed_remote += 1
+                except ResinError as exc:
+                    if not exc.not_found:
+                        remote_errors.append(
+                            {"name": group.get("name"), "error": str(exc)}
+                        )
+            platform_name = str(group.get("platform_name") or "")
+            node_id = int(group.get("egress_node_id") or 0)
+            if node_id > 0 and self.grok is not None:
+                try:
+                    await self.grok.delete_egress_nodes([node_id])
+                except IntegrationError as exc:
                     remote_errors.append(
-                        {"name": group.get("name"), "error": str(exc)}
+                        {"name": platform_name or group.get("name"), "error": str(exc)}
+                    )
+            if platform_name.startswith(prefix):
+                try:
+                    platforms = await self.resin.list_platforms()
+                    target = next(
+                        (
+                            item
+                            for item in platforms
+                            if item.get("name") == platform_name
+                        ),
+                        None,
+                    )
+                    if target is not None:
+                        await self.resin.delete_platform(str(target.get("id") or ""))
+                except ResinError as exc:
+                    remote_errors.append(
+                        {"name": platform_name, "error": str(exc)}
                     )
         result = self.repository.delete_groups(group_ids)
         return {**result, "removedRemote": removed_remote, "remoteErrors": remote_errors}
@@ -212,6 +264,7 @@ class ProxyPoolService:
         lease_expires_at = utc_now() + timedelta(
             hours=self.settings.proxy_pool_lease_hours
         )
+        platform_name, egress_node_id = await self._sync_egress(index, name)
         record = self.repository.upsert_group(
             group_index=index,
             name=name,
@@ -222,8 +275,117 @@ class ProxyPoolService:
             status=STATUS_ACTIVE,
             error="",
             lease_expires_at=lease_expires_at,
+            platform_name=platform_name,
+            egress_node_id=egress_node_id,
+            egress_node_name=platform_name,
         )
         return record, action
+
+    async def _sync_egress(self, index: int, group_name: str) -> tuple[str, int | None]:
+        """Create/update the Resin platform and grok2api egress node for a group."""
+
+        if not self.settings.proxy_pool_auto_egress or self.grok is None:
+            return "", None
+        platform_name = self._platform_name(index)
+        try:
+            platforms = await self.resin.list_platforms()
+            existing = next(
+                (item for item in platforms if item.get("name") == platform_name),
+                None,
+            )
+            regex = [f"^{group_name}/"]
+            if existing is None:
+                await self.resin.create_platform(
+                    name=platform_name, regex_filters=regex
+                )
+            elif list(existing.get("regex_filters") or []) != regex:
+                await self.resin.update_platform(
+                    str(existing.get("id") or ""), regex_filters=regex
+                )
+
+            token = (self.settings.proxy_pool_resin_proxy_token or "").strip()
+            if not token:
+                return platform_name, None
+            return platform_name, await self._sync_egress_node(platform_name, token)
+        except (ResinError, IntegrationError) as exc:
+            logger.warning(
+                "proxy pool auto egress failed for %s: %s", group_name, exc
+            )
+            return platform_name, None
+
+    async def _sync_egress_node(
+        self, platform_name: str, token: str
+    ) -> int | None:
+        capacity = (
+            int(self.settings.proxy_pool_group_size)
+            * int(self.settings.proxy_pool_egress_capacity_factor)
+        )
+        proxy_url = f"socks5h://{platform_name}.{{account}}:{token}@resin:2260"
+        payload = await self.grok.list_egress_nodes(scope="grok_build", pageSize=1000)
+        items = payload.get("items") if isinstance(payload, dict) else []
+        existing = next(
+            (
+                node
+                for node in (items or [])
+                if isinstance(node, dict) and node.get("name") == platform_name
+            ),
+            None,
+        )
+        if existing is not None:
+            node_id = int(existing.get("id") or 0)
+            if node_id <= 0:
+                return None
+            await self.grok.update_egress_node(
+                node_id,
+                name=platform_name,
+                proxy_pool=True,
+                account_capacity=capacity,
+                enabled=bool(existing.get("enabled", True)),
+                proxy_url=proxy_url,
+            )
+            return node_id
+        created = await self.grok.create_egress_node(
+            name=platform_name,
+            proxy_url=proxy_url,
+            proxy_pool=True,
+            account_capacity=capacity,
+            enabled=True,
+        )
+        node_id = int((created or {}).get("id") or 0)
+        return node_id or None
+
+    async def set_group_egress(
+        self, group_id: int, *, enabled: bool
+    ) -> dict[str, Any]:
+        group = self.repository.get_group(group_id)
+        if group is None:
+            raise ValueError("代理池分组不存在")
+        node_id = int(group.get("egress_node_id") or 0)
+        if node_id <= 0 or self.grok is None:
+            raise ValueError("该分组还没有自动创建的出口节点")
+        await self.grok.set_egress_nodes_enabled([node_id], enabled)
+        updated = self.repository.get_group(group_id) or group
+        return self._public_group(updated)
+
+    async def sync_egress_now(self) -> dict[str, Any]:
+        if not self.settings.proxy_pool_auto_egress or self.grok is None:
+            raise ValueError("未开启自动出口联动")
+        synced = 0
+        for group in self.repository.list_groups():
+            name = str(group.get("name") or "")
+            index = int(group.get("group_index") or 0)
+            if not name or index <= 0:
+                continue
+            platform_name, node_id = await self._sync_egress(index, name)
+            if platform_name:
+                self.repository.set_egress(
+                    int(group["id"]),
+                    platform_name=platform_name,
+                    egress_node_id=node_id,
+                    egress_node_name=platform_name,
+                )
+                synced += 1
+        return {"synced": synced, **await self.list_groups()}
 
     async def _prune_extra(self, keep: int) -> int:
         stale = [
@@ -282,6 +444,14 @@ class ProxyPoolService:
     def _prefix(self) -> str:
         return (self.settings.proxy_pool_subscription_prefix or "").strip() or DEFAULT_PREFIX
 
+    def _platform_prefix(self) -> str:
+        return (
+            self.settings.proxy_pool_platform_prefix or ""
+        ).strip() or DEFAULT_PLATFORM_PREFIX
+
+    def _platform_name(self, index: int) -> str:
+        return f"{self._platform_prefix()}-{index:02d}"
+
     def _resolve_target(self, override: int | None) -> int:
         if override is not None:
             value = int(override)
@@ -294,13 +464,19 @@ class ProxyPoolService:
         return value
 
     @staticmethod
-    def _public_group(group: dict[str, Any]) -> dict[str, Any]:
+    def _public_group(
+        group: dict[str, Any], egress_enabled: bool | None = None
+    ) -> dict[str, Any]:
         proxies = [str(value) for value in group.get("proxies") or []]
         return {
+            "egressEnabled": egress_enabled,
             "id": group.get("id"),
             "index": group.get("group_index") or 0,
             "name": group.get("name") or "",
             "subscriptionId": group.get("subscription_id") or "",
+            "platformName": group.get("platform_name") or "",
+            "egressNodeId": group.get("egress_node_id"),
+            "egressNodeName": group.get("egress_node_name") or "",
             "size": group.get("size") or 0,
             "scheme": group.get("scheme") or "",
             "status": group.get("status") or "pending",

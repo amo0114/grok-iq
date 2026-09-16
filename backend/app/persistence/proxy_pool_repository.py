@@ -52,6 +52,9 @@ class ProxyPoolRepository:
         status: str,
         error: str,
         lease_expires_at: datetime | None,
+        platform_name: str = "",
+        egress_node_id: int | None = None,
+        egress_node_name: str = "",
     ) -> dict[str, Any]:
         now = utc_now()
         with self.database.transaction() as session:
@@ -63,6 +66,12 @@ class ProxyPoolRepository:
                 session.add(row)
             row.group_index = group_index
             row.subscription_id = subscription_id
+            if platform_name:
+                row.platform_name = platform_name
+            if egress_node_id is not None:
+                row.egress_node_id = egress_node_id
+            if egress_node_name:
+                row.egress_node_name = egress_node_name
             row.size = size
             row.scheme = scheme
             row.proxies = list(proxies)
@@ -81,6 +90,27 @@ class ProxyPoolRepository:
                 return None
             row.status = STATUS_FAILED
             row.last_error = error
+            row.updated_at = utc_now()
+            return model_dict(row)
+
+    def set_egress(
+        self,
+        group_id: int,
+        *,
+        platform_name: str | None = None,
+        egress_node_id: int | None = None,
+        egress_node_name: str | None = None,
+    ) -> dict[str, Any] | None:
+        with self.database.transaction() as session:
+            row = session.get(ProxyPoolGroup, group_id)
+            if row is None:
+                return None
+            if platform_name is not None:
+                row.platform_name = platform_name
+            if egress_node_id is not None:
+                row.egress_node_id = egress_node_id
+            if egress_node_name is not None:
+                row.egress_node_name = egress_node_name
             row.updated_at = utc_now()
             return model_dict(row)
 

@@ -91,6 +91,55 @@ class ResinClient:
         except (TypeError, ValueError) as exc:
             raise ResinError("Resin 返回了无法解析的响应") from exc
 
+    async def list_platforms(self) -> list[dict[str, Any]]:
+        payload = await self._request("GET", "/api/v1/platforms")
+        items = payload.get("items") if isinstance(payload, dict) else payload
+        if not isinstance(items, list):
+            return []
+        return [item for item in items if isinstance(item, dict)]
+
+    async def create_platform(
+        self,
+        *,
+        name: str,
+        regex_filters: list[str],
+        allocation_policy: str = "BALANCED",
+    ) -> dict[str, Any]:
+        payload = await self._request(
+            "POST",
+            "/api/v1/platforms",
+            json_body={
+                "name": name,
+                "regex_filters": list(regex_filters),
+                "allocation_policy": allocation_policy,
+            },
+        )
+        return payload if isinstance(payload, dict) else {}
+
+    async def update_platform(
+        self,
+        platform_id: str,
+        *,
+        regex_filters: list[str] | None = None,
+        allocation_policy: str | None = None,
+    ) -> dict[str, Any]:
+        body: dict[str, Any] = {}
+        if regex_filters is not None:
+            body["regex_filters"] = list(regex_filters)
+        if allocation_policy is not None:
+            body["allocation_policy"] = allocation_policy
+        if not body:
+            return {}
+        payload = await self._request(
+            "PATCH",
+            f"/api/v1/platforms/{platform_id}",
+            json_body=body,
+        )
+        return payload if isinstance(payload, dict) else {}
+
+    async def delete_platform(self, platform_id: str) -> None:
+        await self._request("DELETE", f"/api/v1/platforms/{platform_id}")
+
     async def list_subscriptions(self, *, keyword: str = "") -> list[dict[str, Any]]:
         params: dict[str, Any] = {"page": 1, "pageSize": 1000}
         if keyword:

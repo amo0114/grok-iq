@@ -375,6 +375,9 @@ class RuntimeSettingsService:
             "proxyPoolGatewayPassword": (
                 self.settings.proxy_pool_gateway_password
             ),
+            "proxyPoolResinProxyToken": (
+                self.settings.proxy_pool_resin_proxy_token
+            ),
         }
         if name not in secrets:
             raise ValueError("不支持读取该敏感设置")
@@ -400,4 +403,8 @@ class RuntimeSettingsService:
             "gatewayRegion": s.proxy_pool_gateway_region,
             "gatewaySticky": s.proxy_pool_gateway_sticky,
             "overFactor": s.proxy_pool_over_factor,
+            "platformPrefix": s.proxy_pool_platform_prefix,
+            "autoEgress": s.proxy_pool_auto_egress,
+            "egressCapacityFactor": s.proxy_pool_egress_capacity_factor,
+            "resinProxyTokenConfigured": bool(s.proxy_pool_resin_proxy_token),
         }
