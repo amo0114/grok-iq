@@ -24,6 +24,14 @@ CONFIG_FIELD_MAP = {
     "scheme": "proxy_pool_scheme",
     "subscription_prefix": "proxy_pool_subscription_prefix",
     "auto_refresh_enabled": "proxy_pool_auto_refresh_enabled",
+    "mode": "proxy_pool_mode",
+    "gateway_host": "proxy_pool_gateway_host",
+    "gateway_port": "proxy_pool_gateway_port",
+    "gateway_username": "proxy_pool_gateway_username",
+    "gateway_password": "proxy_pool_gateway_password",
+    "gateway_region": "proxy_pool_gateway_region",
+    "gateway_sticky": "proxy_pool_gateway_sticky",
+    "over_factor": "proxy_pool_over_factor",
 }
 
 

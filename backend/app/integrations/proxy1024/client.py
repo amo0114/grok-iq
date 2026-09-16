@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import re
+import secrets
+import string
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -10,6 +12,8 @@ from curl_cffi.requests import AsyncSession as CurlAsyncSession
 REQUEST_TIMEOUT_SECONDS = 30
 NUM_PLACEHOLDER = "{num}"
 _HOST_PATTERN = re.compile(r"^[0-9A-Za-z][0-9A-Za-z.\-]*$")
+_SID_ALPHABET = string.ascii_letters + string.digits
+_GATEWAY_HOST_PATTERN = re.compile(r"^[0-9A-Za-z][0-9A-Za-z.\-]*$")
 
 
 class Proxy1024Error(RuntimeError):
@@ -67,6 +71,59 @@ def _decode_payload(response: Any) -> Any:
         return json.loads(stripped)
     except (TypeError, ValueError):
         return stripped
+
+
+def generate_gateway_proxies(
+    *,
+    count: int,
+    host: str,
+    port: int,
+    username: str,
+    password: str,
+    region: str,
+    sticky: str = "1",
+    scheme: str = "socks5",
+) -> list[str]:
+    """Generate sticky-session gateway lines with a unique random sid per node.
+
+    The 1024proxy account gateway pins a residential exit IP per ``sid`` for
+    the configured sticky duration, so each generated line behaves like a
+    long-lived proxy node once an upstream pool resolves it.
+    """
+
+    normalized_host = (host or "").strip()
+    normalized_user = (username or "").strip()
+    normalized_password = password or ""
+    normalized_region = (region or "").strip()
+    normalized_sticky = (sticky or "").strip() or "1"
+    normalized_scheme = (scheme or "socks5").strip().lower() or "socks5"
+    if count <= 0:
+        raise Proxy1024Error("生成的节点数量必须大于 0")
+    if not normalized_host or not _GATEWAY_HOST_PATTERN.match(normalized_host):
+        raise Proxy1024Error("网关地址无效")
+    if not (1 <= int(port) <= 65535):
+        raise Proxy1024Error("网关端口无效")
+    if not normalized_user or not normalized_password:
+        raise Proxy1024Error("网关账号或密码不能为空")
+    if not normalized_region:
+        raise Proxy1024Error("网关地区不能为空")
+
+    lines: list[str] = []
+    seen: set[str] = set()
+    while len(lines) < count:
+        sid = "".join(secrets.choice(_SID_ALPHABET) for _ in range(10))
+        if sid in seen:
+            continue
+        seen.add(sid)
+        gateway_user = (
+            f"{normalized_user}-region-{normalized_region}"
+            f"-sid-{sid}-t-{normalized_sticky}"
+        )
+        lines.append(
+            f"{normalized_scheme}://{gateway_user}:{normalized_password}"
+            f"@{normalized_host}:{int(port)}"
+        )
+    return lines
 
 
 def parse_proxy_entries(payload: Any, *, scheme: str = "socks5") -> list[str]:

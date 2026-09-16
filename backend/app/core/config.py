@@ -111,6 +111,19 @@ class Settings(BaseSettings):
     proxy_pool_scheme: str = "socks5"
     proxy_pool_subscription_prefix: str = "grokiq-1024"
     proxy_pool_auto_refresh_enabled: bool = False
+    # Source mode: "url" pulls a proxy list from the 1024proxy extraction API;
+    # "gateway" generates sticky-session lines against the account gateway so
+    # every node is an independent, long-lived sid (the reliable 1024 flow).
+    proxy_pool_mode: str = "url"
+    proxy_pool_gateway_host: str = ""
+    proxy_pool_gateway_port: int = Field(default=3000, ge=1, le=65535)
+    proxy_pool_gateway_username: str = ""
+    proxy_pool_gateway_password: str = ""
+    proxy_pool_gateway_region: str = "SG"
+    proxy_pool_gateway_sticky: str = "1"
+    # Gateway sids fail at a non-trivial rate, so generate more than the target
+    # and let Resin keep the healthy ones.
+    proxy_pool_over_factor: int = Field(default=2, ge=1, le=10)
     initial_probe_on_register: bool = True
     register_probe_stabilization_seconds: float = Field(
         default=DEFAULT_REGISTER_PROBE_STABILIZATION_SECONDS,
@@ -272,6 +285,14 @@ class Settings(BaseSettings):
         "proxy_pool_scheme",
         "proxy_pool_subscription_prefix",
         "proxy_pool_auto_refresh_enabled",
+        "proxy_pool_mode",
+        "proxy_pool_gateway_host",
+        "proxy_pool_gateway_port",
+        "proxy_pool_gateway_username",
+        "proxy_pool_gateway_password",
+        "proxy_pool_gateway_region",
+        "proxy_pool_gateway_sticky",
+        "proxy_pool_over_factor",
         "initial_probe_on_register",
         "register_probe_stabilization_seconds",
         "register_probe_profile_ids",
@@ -367,6 +388,7 @@ class Settings(BaseSettings):
             "wechat_app_secret",
             "proxy_pool_1024_api_url_template",
             "proxy_pool_resin_admin_token",
+            "proxy_pool_gateway_password",
         }
     )
 

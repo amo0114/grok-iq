@@ -271,15 +271,49 @@ class RuntimeSettingsValidator:
             raise ValueError("代理池协议仅支持 http、https、socks5 或 socks5h")
         candidate.proxy_pool_scheme = scheme
 
+        mode = (candidate.proxy_pool_mode or "").strip().lower()
+        if mode not in {"url", "gateway"}:
+            raise ValueError("代理池取号方式仅支持 url 或 gateway")
+        candidate.proxy_pool_mode = mode
+        candidate.proxy_pool_gateway_host = (
+            candidate.proxy_pool_gateway_host or ""
+        ).strip()
+        candidate.proxy_pool_gateway_username = (
+            candidate.proxy_pool_gateway_username or ""
+        ).strip()
+        candidate.proxy_pool_gateway_password = (
+            candidate.proxy_pool_gateway_password or ""
+        ).strip()
+        candidate.proxy_pool_gateway_region = (
+            candidate.proxy_pool_gateway_region or ""
+        ).strip()
+        candidate.proxy_pool_gateway_sticky = (
+            candidate.proxy_pool_gateway_sticky or ""
+        ).strip() or "1"
+
         if candidate.proxy_pool_resin_base_url:
             parsed = urlsplit(candidate.proxy_pool_resin_base_url)
             if parsed.scheme not in {"http", "https"} or not parsed.netloc:
                 raise ValueError("Resin 地址必须是有效的 HTTP(S) URL")
 
+        if mode == "gateway":
+            missing = [
+                label
+                for label, value in (
+                    ("网关地址", candidate.proxy_pool_gateway_host),
+                    ("网关账号", candidate.proxy_pool_gateway_username),
+                    ("网关密码", candidate.proxy_pool_gateway_password),
+                    ("网关地区", candidate.proxy_pool_gateway_region),
+                )
+                if not value
+            ]
+            if missing:
+                raise ValueError(f"网关模式缺少：{'、'.join(missing)}")
         if candidate.proxy_pool_auto_refresh_enabled:
-            if not candidate.proxy_pool_1024_api_url_template:
-                raise ValueError("开启自动刷新前请填写 1024proxy 提取链接模板")
-            if "{num}" not in candidate.proxy_pool_1024_api_url_template:
-                raise ValueError("1024proxy 提取链接模板必须包含 {num} 占位符")
+            if mode == "url":
+                if not candidate.proxy_pool_1024_api_url_template:
+                    raise ValueError("开启自动刷新前请填写 1024proxy 提取链接模板")
+                if "{num}" not in candidate.proxy_pool_1024_api_url_template:
+                    raise ValueError("1024proxy 提取链接模板必须包含 {num} 占位符")
             if not candidate.proxy_pool_resin_base_url:
                 raise ValueError("开启自动刷新前请填写 Resin 地址")

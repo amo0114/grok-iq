@@ -372,6 +372,9 @@ class RuntimeSettingsService:
             "proxyPoolResinAdminToken": (
                 self.settings.proxy_pool_resin_admin_token
             ),
+            "proxyPoolGatewayPassword": (
+                self.settings.proxy_pool_gateway_password
+            ),
         }
         if name not in secrets:
             raise ValueError("不支持读取该敏感设置")
@@ -389,4 +392,12 @@ class RuntimeSettingsService:
             "scheme": s.proxy_pool_scheme,
             "subscriptionPrefix": s.proxy_pool_subscription_prefix,
             "autoRefreshEnabled": s.proxy_pool_auto_refresh_enabled,
+            "mode": s.proxy_pool_mode,
+            "gatewayHost": s.proxy_pool_gateway_host,
+            "gatewayPort": s.proxy_pool_gateway_port,
+            "gatewayUsername": s.proxy_pool_gateway_username,
+            "gatewayPasswordConfigured": bool(s.proxy_pool_gateway_password),
+            "gatewayRegion": s.proxy_pool_gateway_region,
+            "gatewaySticky": s.proxy_pool_gateway_sticky,
+            "overFactor": s.proxy_pool_over_factor,
         }

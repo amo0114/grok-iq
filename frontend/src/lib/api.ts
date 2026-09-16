@@ -679,6 +679,8 @@ export type EgressAccountDistributionResult = {
 
 export type ProxyPoolScheme = 'http' | 'https' | 'socks5' | 'socks5h'
 
+export type ProxyPoolMode = 'url' | 'gateway'
+
 export type ProxyPoolConfig = {
   apiUrlTemplateConfigured: boolean
   resinBaseUrl: string
@@ -689,6 +691,14 @@ export type ProxyPoolConfig = {
   scheme: ProxyPoolScheme
   subscriptionPrefix: string
   autoRefreshEnabled: boolean
+  mode: ProxyPoolMode
+  gatewayHost: string
+  gatewayPort: number
+  gatewayUsername: string
+  gatewayPasswordConfigured: boolean
+  gatewayRegion: string
+  gatewaySticky: string
+  overFactor: number
 }
 
 export type ProxyPoolConfigInput = {
@@ -701,6 +711,14 @@ export type ProxyPoolConfigInput = {
   scheme?: ProxyPoolScheme
   subscriptionPrefix?: string
   autoRefreshEnabled?: boolean
+  mode?: ProxyPoolMode
+  gatewayHost?: string
+  gatewayPort?: number
+  gatewayUsername?: string
+  gatewayPassword?: string
+  gatewayRegion?: string
+  gatewaySticky?: string
+  overFactor?: number
 }
 
 export type ProxyPoolGroup = {
@@ -729,6 +747,7 @@ export type ProxyPoolGroupsResponse = {
 export type ProxyPoolPreview = {
   requested: number
   fetched: number
+  mode?: ProxyPoolMode
   groupSize: number
   groupCount: number
   groups: {
@@ -742,6 +761,7 @@ export type ProxyPoolPreview = {
 export type ProxyPoolImportResult = {
   requested: number
   fetched: number
+  mode?: ProxyPoolMode
   groupCount: number
   created: number
   updated: number
@@ -1577,7 +1597,9 @@ export type SecretSettingName =
   | 'wechatAppSecret'
 
 export type ProxyPoolSecretName =
-  'proxyPoolApiUrlTemplate' | 'proxyPoolResinAdminToken'
+  | 'proxyPoolApiUrlTemplate'
+  | 'proxyPoolResinAdminToken'
+  | 'proxyPoolGatewayPassword'
 
 export type RuntimeSettingsUpdate = Partial<
   Pick<

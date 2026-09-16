@@ -666,6 +666,24 @@ class ProxyPoolConfigInput(BaseModel):
     auto_refresh_enabled: bool | None = Field(
         default=None, alias="autoRefreshEnabled"
     )
+    mode: Literal["url", "gateway"] | None = None
+    gateway_host: str | None = Field(
+        default=None, alias="gatewayHost", max_length=255
+    )
+    gateway_port: int | None = Field(default=None, alias="gatewayPort", ge=1, le=65535)
+    gateway_username: str | None = Field(
+        default=None, alias="gatewayUsername", max_length=255
+    )
+    gateway_password: str | None = Field(
+        default=None, alias="gatewayPassword", max_length=500
+    )
+    gateway_region: str | None = Field(
+        default=None, alias="gatewayRegion", max_length=32
+    )
+    gateway_sticky: str | None = Field(
+        default=None, alias="gatewaySticky", max_length=32
+    )
+    over_factor: int | None = Field(default=None, alias="overFactor", ge=1, le=10)
 
 
 class ProxyPoolImportInput(BaseModel):

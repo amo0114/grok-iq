@@ -7,7 +7,11 @@ from typing import Any
 
 from app.core.clock import utc_now
 from app.core.config import Settings
-from app.integrations.proxy1024 import Proxy1024Error, fetch_proxies
+from app.integrations.proxy1024 import (
+    Proxy1024Error,
+    fetch_proxies,
+    generate_gateway_proxies,
+)
 from app.integrations.resin import ResinClient, ResinError
 from app.persistence.proxy_pool_repository import STATUS_ACTIVE, ProxyPoolRepository
 
@@ -68,11 +72,12 @@ class ProxyPoolService:
 
     async def preview(self, *, total: int | None = None) -> dict[str, Any]:
         count = self._resolve_target(total)
-        proxies = await self._fetch(count)
+        proxies = await self._fetch(self._fetch_count(count))
         plan = self._plan(proxies)
         return {
             "requested": count,
             "fetched": len(proxies),
+            "mode": self._mode(),
             "groupSize": self.settings.proxy_pool_group_size,
             "groupCount": len(plan),
             "groups": [
@@ -88,7 +93,7 @@ class ProxyPoolService:
 
     async def import_groups(self, *, total: int | None = None) -> dict[str, Any]:
         count = self._resolve_target(total)
-        proxies = await self._fetch(count)
+        proxies = await self._fetch(self._fetch_count(count))
         plan = self._plan(proxies)
         if not plan:
             raise Proxy1024Error("没有可导入的代理，请检查 1024proxy 提取结果")
@@ -115,6 +120,7 @@ class ProxyPoolService:
         return {
             "requested": count,
             "fetched": len(proxies),
+            "mode": self._mode(),
             "groupCount": len(plan),
             "created": created,
             "updated": updated,
@@ -138,7 +144,7 @@ class ProxyPoolService:
         group = self.repository.get_group(group_id)
         if group is None:
             raise ValueError("代理池分组不存在")
-        size = max(1, int(group.get("size") or self.settings.proxy_pool_group_size))
+        size = self._chunk_size()
         proxies = await self._fetch(size)
         chunk = proxies[:size]
         record, action = await self._publish(
@@ -232,7 +238,32 @@ class ProxyPoolService:
         )
         return int(result.get("deleted") or 0)
 
+    def _mode(self) -> str:
+        return "gateway" if self.settings.proxy_pool_mode == "gateway" else "url"
+
+    def _fetch_count(self, target: int) -> int:
+        if self._mode() == "gateway":
+            return target * int(self.settings.proxy_pool_over_factor)
+        return target
+
+    def _chunk_size(self) -> int:
+        size = int(self.settings.proxy_pool_group_size)
+        if self._mode() == "gateway":
+            size *= int(self.settings.proxy_pool_over_factor)
+        return max(1, size)
+
     async def _fetch(self, num: int) -> list[str]:
+        if self._mode() == "gateway":
+            return generate_gateway_proxies(
+                count=num,
+                host=self.settings.proxy_pool_gateway_host,
+                port=self.settings.proxy_pool_gateway_port,
+                username=self.settings.proxy_pool_gateway_username,
+                password=self.settings.proxy_pool_gateway_password,
+                region=self.settings.proxy_pool_gateway_region,
+                sticky=self.settings.proxy_pool_gateway_sticky,
+                scheme=self.settings.proxy_pool_scheme,
+            )
         return await fetch_proxies(
             self.settings.proxy_pool_1024_api_url_template,
             num=num,
@@ -240,7 +271,7 @@ class ProxyPoolService:
         )
 
     def _plan(self, proxies: list[str]) -> list[tuple[int, str, list[str]]]:
-        size = self.settings.proxy_pool_group_size
+        size = self._chunk_size()
         prefix = self._prefix()
         plan: list[tuple[int, str, list[str]]] = []
         for offset in range(0, len(proxies), size):
@@ -299,7 +330,7 @@ class ProxyPoolService:
     async def _refresh_due(self) -> None:
         if not self.settings.proxy_pool_auto_refresh_enabled:
             return
-        if not self.settings.proxy_pool_1024_api_url_template:
+        if self._mode() == "url" and not self.settings.proxy_pool_1024_api_url_template:
             return
         due = self.repository.due_groups(before=utc_now())
         if not due:

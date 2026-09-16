@@ -144,6 +144,35 @@ async def test_delete_groups_removes_remote_and_local(tmp_path, monkeypatch):
     assert repository.list_groups() == []
 
 
+async def test_gateway_mode_generates_sid_nodes(tmp_path):
+    database = Database(tmp_path / "grokiq.db")
+    database.initialize()
+    settings = Settings(_env_file=None)
+    settings.proxy_pool_mode = "gateway"
+    settings.proxy_pool_group_size = 50
+    settings.proxy_pool_target_ip_count = 50
+    settings.proxy_pool_over_factor = 2
+    settings.proxy_pool_gateway_host = "us.1024proxy.io"
+    settings.proxy_pool_gateway_port = 3000
+    settings.proxy_pool_gateway_username = "tlrp743120"
+    settings.proxy_pool_gateway_password = "secret"
+    settings.proxy_pool_gateway_region = "SG"
+    settings.proxy_pool_subscription_prefix = "grokiq-1024"
+    repository = ProxyPoolRepository(database)
+    resin = FakeResin()
+    service = ProxyPoolService(settings=settings, repository=repository, resin=resin)
+
+    result = await service.import_groups()
+
+    assert result["mode"] == "gateway"
+    assert result["fetched"] == 100
+    assert result["groupCount"] == 1
+    groups = repository.list_groups()
+    assert len(groups) == 1
+    assert groups[0]["size"] == 100
+    assert all("-region-SG-sid-" in proxy for proxy in groups[0]["proxies"])
+
+
 async def test_refresh_due_only_runs_when_enabled_and_expired(tmp_path, monkeypatch):
     calls: list[int] = []
     patch_fetch(monkeypatch, calls)

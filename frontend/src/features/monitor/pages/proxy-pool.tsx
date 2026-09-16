@@ -21,6 +21,7 @@ import {
   type ProxyPoolConfigInput,
   type ProxyPoolGroup,
   type ProxyPoolImportResult,
+  type ProxyPoolMode,
   type ProxyPoolPreview,
   type ProxyPoolScheme,
 } from '@/lib/api'
@@ -77,6 +78,14 @@ type ConfigForm = {
   scheme: ProxyPoolScheme
   subscriptionPrefix: string
   autoRefreshEnabled: boolean
+  mode: ProxyPoolMode
+  gatewayHost: string
+  gatewayPort: string
+  gatewayUsername: string
+  gatewayPassword: string
+  gatewayRegion: string
+  gatewaySticky: string
+  overFactor: string
 }
 
 const emptyConfigForm: ConfigForm = {
@@ -89,6 +98,14 @@ const emptyConfigForm: ConfigForm = {
   scheme: 'socks5',
   subscriptionPrefix: 'grokiq-1024',
   autoRefreshEnabled: false,
+  mode: 'url',
+  gatewayHost: '',
+  gatewayPort: '3000',
+  gatewayUsername: '',
+  gatewayPassword: '',
+  gatewayRegion: 'SG',
+  gatewaySticky: '1',
+  overFactor: '2',
 }
 
 function positiveInt(value: string): number | undefined {
@@ -106,6 +123,7 @@ export function ProxyPoolPage() {
   const [configForm, setConfigForm] = useState<ConfigForm>(emptyConfigForm)
   const [clearApiUrl, setClearApiUrl] = useState(false)
   const [clearAdminToken, setClearAdminToken] = useState(false)
+  const [clearGatewayPassword, setClearGatewayPassword] = useState(false)
   const [totalOverride, setTotalOverride] = useState('')
   const [preview, setPreview] = useState<ProxyPoolPreview | null>(null)
   const [lastImport, setLastImport] = useState<ProxyPoolImportResult | null>(
@@ -224,25 +242,37 @@ export function ProxyPoolPage() {
       scheme: config?.scheme ?? 'socks5',
       subscriptionPrefix: config?.subscriptionPrefix ?? 'grokiq-1024',
       autoRefreshEnabled: config?.autoRefreshEnabled ?? false,
+      mode: config?.mode ?? 'url',
+      gatewayHost: config?.gatewayHost ?? '',
+      gatewayPort: String(config?.gatewayPort ?? 3000),
+      gatewayUsername: config?.gatewayUsername ?? '',
+      gatewayPassword: '',
+      gatewayRegion: config?.gatewayRegion ?? 'SG',
+      gatewaySticky: config?.gatewaySticky ?? '1',
+      overFactor: String(config?.overFactor ?? 2),
     })
     setClearApiUrl(false)
     setClearAdminToken(false)
+    setClearGatewayPassword(false)
     setConfigOpen(true)
   }
 
   const revealSecrets = async () => {
     try {
-      const [template, token] = await Promise.all([
+      const [template, token, password] = await Promise.all([
         api.revealSettingSecret('proxyPoolApiUrlTemplate'),
         api.revealSettingSecret('proxyPoolResinAdminToken'),
+        api.revealSettingSecret('proxyPoolGatewayPassword'),
       ])
       setConfigForm((current) => ({
         ...current,
         apiUrlTemplate: template.value,
         resinAdminToken: token.value,
+        gatewayPassword: password.value,
       }))
       setClearApiUrl(false)
       setClearAdminToken(false)
+      setClearGatewayPassword(false)
     } catch (error) {
       toast.error(getErrorMessage(error))
     }
@@ -257,6 +287,13 @@ export function ProxyPoolPage() {
       scheme: configForm.scheme,
       subscriptionPrefix: configForm.subscriptionPrefix.trim(),
       autoRefreshEnabled: configForm.autoRefreshEnabled,
+      mode: configForm.mode,
+      gatewayHost: configForm.gatewayHost.trim(),
+      gatewayPort: positiveInt(configForm.gatewayPort),
+      gatewayUsername: configForm.gatewayUsername.trim(),
+      gatewayRegion: configForm.gatewayRegion.trim(),
+      gatewaySticky: configForm.gatewaySticky.trim(),
+      overFactor: positiveInt(configForm.overFactor),
     }
     const template = configForm.apiUrlTemplate.trim()
     if (template) payload.apiUrlTemplate = template
@@ -264,6 +301,9 @@ export function ProxyPoolPage() {
     const token = configForm.resinAdminToken.trim()
     if (token) payload.resinAdminToken = token
     else if (clearAdminToken) payload.resinAdminToken = ''
+    const password = configForm.gatewayPassword.trim()
+    if (password) payload.gatewayPassword = password
+    else if (clearGatewayPassword) payload.gatewayPassword = ''
     saveConfigMutation.mutate(payload)
   }
 
@@ -355,9 +395,27 @@ export function ProxyPoolPage() {
           <div className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
             <ConfigMetric
               icon={<Link2 />}
-              label='1024proxy 提取链接'
-              value={config?.apiUrlTemplateConfigured ? '已配置' : '未配置'}
-              ok={config?.apiUrlTemplateConfigured}
+              label='取号方式'
+              value={config?.mode === 'gateway' ? '账密网关 + sid' : '提取链接'}
+              ok
+            />
+            <ConfigMetric
+              icon={<Link2 />}
+              label='取号来源'
+              value={
+                config?.mode === 'gateway'
+                  ? `${config?.gatewayHost || '未配置'}:${config?.gatewayPort ?? ''}`
+                  : config?.apiUrlTemplateConfigured
+                    ? '已配置'
+                    : '未配置'
+              }
+              ok={
+                config?.mode === 'gateway'
+                  ? Boolean(
+                      config?.gatewayHost && config?.gatewayPasswordConfigured
+                    )
+                  : config?.apiUrlTemplateConfigured
+              }
             />
             <ConfigMetric
               icon={<Server />}
@@ -583,62 +641,239 @@ export function ProxyPoolPage() {
           </DialogHeader>
           <div className='grid max-h-[60vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2'>
             <div className='space-y-1.5 sm:col-span-2'>
-              <div className='flex min-h-5 items-center justify-between gap-2'>
-                <div className='flex items-center gap-1.5'>
-                  <Label htmlFor='proxy-pool-template'>
-                    1024proxy 提取链接模板
-                  </Label>
-                  <InfoTooltip
-                    label='1024proxy 提取链接模板'
-                    content={
-                      <>
-                        直接粘贴 dashboard API 模式生成的链接，把数量改成{' '}
-                        <span className='font-mono'>{'{num}'}</span>{' '}
-                        占位符，例如
-                        <span className='font-mono'>
-                          &amp;num={'{num}'}&amp;type=txt
-                        </span>
-                        。
-                      </>
+              <div className='flex items-center gap-1.5'>
+                <Label>取号方式</Label>
+                <InfoTooltip
+                  label='取号方式'
+                  content={
+                    <>
+                      网关模式用账号密码连 1024 网关，靠随机 sid
+                      生成稳定粘性节点， 更稳；提取链接模式走 dashboard 的 API
+                      链接。
+                    </>
+                  }
+                />
+              </div>
+              <Select
+                value={configForm.mode}
+                onValueChange={(value) =>
+                  setConfigForm((current) => ({
+                    ...current,
+                    mode: value as ProxyPoolMode,
+                  }))
+                }
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='gateway'>
+                    账密网关 + 随机 sid（推荐）
+                  </SelectItem>
+                  <SelectItem value='url'>
+                    1024proxy 提取链接（API 模式）
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {configForm.mode === 'url' ? (
+              <div className='space-y-1.5 sm:col-span-2'>
+                <div className='flex min-h-5 items-center justify-between gap-2'>
+                  <div className='flex items-center gap-1.5'>
+                    <Label htmlFor='proxy-pool-template'>
+                      1024proxy 提取链接模板
+                    </Label>
+                    <InfoTooltip
+                      label='1024proxy 提取链接模板'
+                      content={
+                        <>
+                          直接粘贴 dashboard API 模式生成的链接，把数量改成{' '}
+                          <span className='font-mono'>{'{num}'}</span>{' '}
+                          占位符，例如
+                          <span className='font-mono'>
+                            &amp;num={'{num}'}&amp;type=txt
+                          </span>
+                          。
+                        </>
+                      }
+                    />
+                  </div>
+                  <Button
+                    type='button'
+                    size='sm'
+                    variant='ghost'
+                    className='h-6 px-2 text-xs'
+                    disabled={!config?.apiUrlTemplateConfigured}
+                    onClick={() => {
+                      setClearApiUrl(true)
+                      setConfigForm((current) => ({
+                        ...current,
+                        apiUrlTemplate: '',
+                      }))
+                    }}
+                  >
+                    清除已保存
+                  </Button>
+                </div>
+                <Input
+                  id='proxy-pool-template'
+                  type='password'
+                  autoComplete='off'
+                  value={configForm.apiUrlTemplate}
+                  onChange={(event) => {
+                    setClearApiUrl(false)
+                    setConfigForm((current) => ({
+                      ...current,
+                      apiUrlTemplate: event.target.value,
+                    }))
+                  }}
+                  placeholder={
+                    config?.apiUrlTemplateConfigured
+                      ? '已配置，留空保持不变'
+                      : 'https://api.1024proxy.com/...&num={num}&type=txt'
+                  }
+                />
+              </div>
+            ) : (
+              <>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='proxy-pool-gw-host'>网关地址</Label>
+                  <Input
+                    id='proxy-pool-gw-host'
+                    value={configForm.gatewayHost}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewayHost: event.target.value,
+                      }))
+                    }
+                    placeholder='us.1024proxy.io'
+                  />
+                </div>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='proxy-pool-gw-port'>网关端口</Label>
+                  <Input
+                    id='proxy-pool-gw-port'
+                    type='number'
+                    min={1}
+                    max={65535}
+                    value={configForm.gatewayPort}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewayPort: event.target.value,
+                      }))
+                    }
+                    placeholder='3000'
+                  />
+                </div>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='proxy-pool-gw-user'>网关账号</Label>
+                  <Input
+                    id='proxy-pool-gw-user'
+                    value={configForm.gatewayUsername}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewayUsername: event.target.value,
+                      }))
+                    }
+                    placeholder='tlrp743120'
+                  />
+                </div>
+                <div className='space-y-1.5'>
+                  <div className='flex min-h-5 items-center justify-between gap-2'>
+                    <Label htmlFor='proxy-pool-gw-pass'>网关密码</Label>
+                    <Button
+                      type='button'
+                      size='sm'
+                      variant='ghost'
+                      className='h-6 px-2 text-xs'
+                      disabled={!config?.gatewayPasswordConfigured}
+                      onClick={() => {
+                        setClearGatewayPassword(true)
+                        setConfigForm((current) => ({
+                          ...current,
+                          gatewayPassword: '',
+                        }))
+                      }}
+                    >
+                      清除已保存
+                    </Button>
+                  </div>
+                  <Input
+                    id='proxy-pool-gw-pass'
+                    type='password'
+                    autoComplete='off'
+                    value={configForm.gatewayPassword}
+                    onChange={(event) => {
+                      setClearGatewayPassword(false)
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewayPassword: event.target.value,
+                      }))
+                    }}
+                    placeholder={
+                      config?.gatewayPasswordConfigured
+                        ? '已配置，留空保持不变'
+                        : '网关密码'
                     }
                   />
                 </div>
-                <Button
-                  type='button'
-                  size='sm'
-                  variant='ghost'
-                  className='h-6 px-2 text-xs'
-                  disabled={!config?.apiUrlTemplateConfigured}
-                  onClick={() => {
-                    setClearApiUrl(true)
-                    setConfigForm((current) => ({
-                      ...current,
-                      apiUrlTemplate: '',
-                    }))
-                  }}
-                >
-                  清除已保存
-                </Button>
-              </div>
-              <Input
-                id='proxy-pool-template'
-                type='password'
-                autoComplete='off'
-                value={configForm.apiUrlTemplate}
-                onChange={(event) => {
-                  setClearApiUrl(false)
-                  setConfigForm((current) => ({
-                    ...current,
-                    apiUrlTemplate: event.target.value,
-                  }))
-                }}
-                placeholder={
-                  config?.apiUrlTemplateConfigured
-                    ? '已配置，留空保持不变'
-                    : 'https://api.1024proxy.com/...&num={num}&type=txt'
-                }
-              />
-            </div>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='proxy-pool-gw-region'>地区</Label>
+                  <Input
+                    id='proxy-pool-gw-region'
+                    value={configForm.gatewayRegion}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewayRegion: event.target.value,
+                      }))
+                    }
+                    placeholder='SG'
+                  />
+                </div>
+                <div className='space-y-1.5'>
+                  <Label htmlFor='proxy-pool-gw-sticky'>粘性时长 (t)</Label>
+                  <Input
+                    id='proxy-pool-gw-sticky'
+                    value={configForm.gatewaySticky}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        gatewaySticky: event.target.value,
+                      }))
+                    }
+                    placeholder='1'
+                  />
+                </div>
+                <div className='space-y-1.5 sm:col-span-2'>
+                  <div className='flex items-center gap-1.5'>
+                    <Label htmlFor='proxy-pool-over-factor'>超额倍数</Label>
+                    <InfoTooltip
+                      label='超额倍数'
+                      content='网关 sid 有一定失败率，按目标数量乘以该倍数生成，让 Resin 健康检查自动筛掉坏的。例如每组 50 个健康节点、倍数 2 会生成 100 个 sid。'
+                    />
+                  </div>
+                  <Input
+                    id='proxy-pool-over-factor'
+                    type='number'
+                    min={1}
+                    max={10}
+                    value={configForm.overFactor}
+                    onChange={(event) =>
+                      setConfigForm((current) => ({
+                        ...current,
+                        overFactor: event.target.value,
+                      }))
+                    }
+                    placeholder='2'
+                  />
+                </div>
+              </>
+            )}
             <div className='space-y-1.5'>
               <Label htmlFor='proxy-pool-resin-url'>Resin 地址</Label>
               <Input
