@@ -9,49 +9,49 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as StatusRouteImport } from './routes/status'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as errors503RouteImport } from './routes/(errors)/503'
-import { Route as errors500RouteImport } from './routes/(errors)/500'
-import { Route as errors404RouteImport } from './routes/(errors)/404'
-import { Route as errors403RouteImport } from './routes/(errors)/403'
-import { Route as errors401RouteImport } from './routes/(errors)/401'
-import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
-import { Route as authSignIn2RouteImport } from './routes/(auth)/sign-in-2'
-import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
-import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as StatusRouteImport } from './routes/status'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as authOtpRouteImport } from './routes/(auth)/otp'
+import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authSignIn2RouteImport } from './routes/(auth)/sign-in-2'
+import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
+import { Route as errors401RouteImport } from './routes/(errors)/401'
+import { Route as errors403RouteImport } from './routes/(errors)/403'
+import { Route as errors404RouteImport } from './routes/(errors)/404'
+import { Route as errors500RouteImport } from './routes/(errors)/500'
+import { Route as errors503RouteImport } from './routes/(errors)/503'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
-import { Route as AuthenticatedWorkersIndexRouteImport } from './routes/_authenticated/workers/index'
-import { Route as AuthenticatedSsoReportsIndexRouteImport } from './routes/_authenticated/sso-reports/index'
-import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
-import { Route as AuthenticatedRunsIndexRouteImport } from './routes/_authenticated/runs/index'
-import { Route as AuthenticatedRequestAuditsIndexRouteImport } from './routes/_authenticated/request-audits/index'
-import { Route as AuthenticatedQuarantineIndexRouteImport } from './routes/_authenticated/quarantine/index'
-import { Route as AuthenticatedProbeProfilesIndexRouteImport } from './routes/_authenticated/probe-profiles/index'
-import { Route as AuthenticatedPlaygroundIndexRouteImport } from './routes/_authenticated/playground/index'
-import { Route as AuthenticatedPlansIndexRouteImport } from './routes/_authenticated/plans/index'
-import { Route as AuthenticatedGuideIndexRouteImport } from './routes/_authenticated/guide/index'
-import { Route as AuthenticatedEgressNodesIndexRouteImport } from './routes/_authenticated/egress-nodes/index'
 import { Route as AuthenticatedAccountsIndexRouteImport } from './routes/_authenticated/accounts/index'
-import { Route as AuthenticatedSettingsVersionRouteImport } from './routes/_authenticated/settings/version'
-import { Route as AuthenticatedSettingsRiskRouteImport } from './routes/_authenticated/settings/risk'
-import { Route as AuthenticatedSettingsRequestAuditRouteImport } from './routes/_authenticated/settings/request-audit'
-import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
-import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings/integrations'
-import { Route as AuthenticatedSettingsExecutionRouteImport } from './routes/_authenticated/settings/execution'
-import { Route as AuthenticatedSettingsConnectionRouteImport } from './routes/_authenticated/settings/connection'
-import { Route as AuthenticatedSettingsBootstrapRouteImport } from './routes/_authenticated/settings/bootstrap'
-import { Route as AuthenticatedRequestAuditsWorkspaceRouteImport } from './routes/_authenticated/request-audits/workspace'
-import { Route as AuthenticatedRequestAuditsScheduleRouteImport } from './routes/_authenticated/request-audits/schedule'
-import { Route as AuthenticatedRequestAuditsLedgerRouteImport } from './routes/_authenticated/request-audits/ledger'
+import { Route as AuthenticatedEgressNodesIndexRouteImport } from './routes/_authenticated/egress-nodes/index'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedGuideIndexRouteImport } from './routes/_authenticated/guide/index'
+import { Route as AuthenticatedPlansIndexRouteImport } from './routes/_authenticated/plans/index'
+import { Route as AuthenticatedPlaygroundIndexRouteImport } from './routes/_authenticated/playground/index'
+import { Route as AuthenticatedProbeProfilesIndexRouteImport } from './routes/_authenticated/probe-profiles/index'
+import { Route as AuthenticatedProxyPoolIndexRouteImport } from './routes/_authenticated/proxy-pool/index'
+import { Route as AuthenticatedQuarantineIndexRouteImport } from './routes/_authenticated/quarantine/index'
+import { Route as AuthenticatedRequestAuditsIndexRouteImport } from './routes/_authenticated/request-audits/index'
+import { Route as AuthenticatedRequestAuditsLedgerRouteImport } from './routes/_authenticated/request-audits/ledger'
+import { Route as AuthenticatedRequestAuditsScheduleRouteImport } from './routes/_authenticated/request-audits/schedule'
+import { Route as AuthenticatedRequestAuditsWorkspaceRouteImport } from './routes/_authenticated/request-audits/workspace'
+import { Route as AuthenticatedRunsIndexRouteImport } from './routes/_authenticated/runs/index'
+import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedSettingsBootstrapRouteImport } from './routes/_authenticated/settings/bootstrap'
+import { Route as AuthenticatedSettingsConnectionRouteImport } from './routes/_authenticated/settings/connection'
+import { Route as AuthenticatedSettingsExecutionRouteImport } from './routes/_authenticated/settings/execution'
+import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings/integrations'
+import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
+import { Route as AuthenticatedSettingsRequestAuditRouteImport } from './routes/_authenticated/settings/request-audit'
+import { Route as AuthenticatedSettingsRiskRouteImport } from './routes/_authenticated/settings/risk'
+import { Route as AuthenticatedSettingsVersionRouteImport } from './routes/_authenticated/settings/version'
+import { Route as AuthenticatedSsoReportsIndexRouteImport } from './routes/_authenticated/sso-reports/index'
+import { Route as AuthenticatedWorkersIndexRouteImport } from './routes/_authenticated/workers/index'
 
-const StatusRoute = StatusRouteImport.update({
-  id: '/status',
-  path: '/status',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -59,58 +59,9 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const errors503Route = errors503RouteImport.update({
-  id: '/(errors)/503',
-  path: '/503',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors500Route = errors500RouteImport.update({
-  id: '/(errors)/500',
-  path: '/500',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors404Route = errors404RouteImport.update({
-  id: '/(errors)/404',
-  path: '/404',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors403Route = errors403RouteImport.update({
-  id: '/(errors)/403',
-  path: '/403',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const errors401Route = errors401RouteImport.update({
-  id: '/(errors)/401',
-  path: '/401',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authSignUpRoute = authSignUpRouteImport.update({
-  id: '/(auth)/sign-up',
-  path: '/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authSignIn2Route = authSignIn2RouteImport.update({
-  id: '/(auth)/sign-in-2',
-  path: '/sign-in-2',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authSignInRoute = authSignInRouteImport.update({
-  id: '/(auth)/sign-in',
-  path: '/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const authOtpRoute = authOtpRouteImport.update({
-  id: '/(auth)/otp',
-  path: '/otp',
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
@@ -118,73 +69,60 @@ const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authOtpRoute = authOtpRouteImport.update({
+  id: '/(auth)/otp',
+  path: '/otp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignInRoute = authSignInRouteImport.update({
+  id: '/(auth)/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignIn2Route = authSignIn2RouteImport.update({
+  id: '/(auth)/sign-in-2',
+  path: '/sign-in-2',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authSignUpRoute = authSignUpRouteImport.update({
+  id: '/(auth)/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors401Route = errors401RouteImport.update({
+  id: '/(errors)/401',
+  path: '/401',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors403Route = errors403RouteImport.update({
+  id: '/(errors)/403',
+  path: '/403',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors404Route = errors404RouteImport.update({
+  id: '/(errors)/404',
+  path: '/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors500Route = errors500RouteImport.update({
+  id: '/(errors)/500',
+  path: '/500',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const errors503Route = errors503RouteImport.update({
+  id: '/(errors)/503',
+  path: '/503',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsRouteRoute =
   AuthenticatedSettingsRouteRouteImport.update({
     id: '/settings',
     path: '/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedWorkersIndexRoute =
-  AuthenticatedWorkersIndexRouteImport.update({
-    id: '/workers/',
-    path: '/workers/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSsoReportsIndexRoute =
-  AuthenticatedSsoReportsIndexRouteImport.update({
-    id: '/sso-reports/',
-    path: '/sso-reports/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedSettingsIndexRoute =
-  AuthenticatedSettingsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedRunsIndexRoute = AuthenticatedRunsIndexRouteImport.update({
-  id: '/runs/',
-  path: '/runs/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedRequestAuditsIndexRoute =
-  AuthenticatedRequestAuditsIndexRouteImport.update({
-    id: '/request-audits/',
-    path: '/request-audits/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedQuarantineIndexRoute =
-  AuthenticatedQuarantineIndexRouteImport.update({
-    id: '/quarantine/',
-    path: '/quarantine/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedProbeProfilesIndexRoute =
-  AuthenticatedProbeProfilesIndexRouteImport.update({
-    id: '/probe-profiles/',
-    path: '/probe-profiles/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedPlaygroundIndexRoute =
-  AuthenticatedPlaygroundIndexRouteImport.update({
-    id: '/playground/',
-    path: '/playground/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedPlansIndexRoute = AuthenticatedPlansIndexRouteImport.update({
-  id: '/plans/',
-  path: '/plans/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGuideIndexRoute = AuthenticatedGuideIndexRouteImport.update({
-  id: '/guide/',
-  path: '/guide/',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedEgressNodesIndexRoute =
-  AuthenticatedEgressNodesIndexRouteImport.update({
-    id: '/egress-nodes/',
-    path: '/egress-nodes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAccountsIndexRoute =
@@ -193,64 +131,56 @@ const AuthenticatedAccountsIndexRoute =
     path: '/accounts/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedSettingsVersionRoute =
-  AuthenticatedSettingsVersionRouteImport.update({
-    id: '/version',
-    path: '/version',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsRiskRoute =
-  AuthenticatedSettingsRiskRouteImport.update({
-    id: '/risk',
-    path: '/risk',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsRequestAuditRoute =
-  AuthenticatedSettingsRequestAuditRouteImport.update({
-    id: '/request-audit',
-    path: '/request-audit',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsNotificationsRoute =
-  AuthenticatedSettingsNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsIntegrationsRoute =
-  AuthenticatedSettingsIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsExecutionRoute =
-  AuthenticatedSettingsExecutionRouteImport.update({
-    id: '/execution',
-    path: '/execution',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsConnectionRoute =
-  AuthenticatedSettingsConnectionRouteImport.update({
-    id: '/connection',
-    path: '/connection',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedSettingsBootstrapRoute =
-  AuthenticatedSettingsBootstrapRouteImport.update({
-    id: '/bootstrap',
-    path: '/bootstrap',
-    getParentRoute: () => AuthenticatedSettingsRouteRoute,
-  } as any)
-const AuthenticatedRequestAuditsWorkspaceRoute =
-  AuthenticatedRequestAuditsWorkspaceRouteImport.update({
-    id: '/request-audits/workspace',
-    path: '/request-audits/workspace',
+const AuthenticatedEgressNodesIndexRoute =
+  AuthenticatedEgressNodesIndexRouteImport.update({
+    id: '/egress-nodes/',
+    path: '/egress-nodes/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedRequestAuditsScheduleRoute =
-  AuthenticatedRequestAuditsScheduleRouteImport.update({
-    id: '/request-audits/schedule',
-    path: '/request-audits/schedule',
+const AuthenticatedErrorsErrorRoute =
+  AuthenticatedErrorsErrorRouteImport.update({
+    id: '/errors/$error',
+    path: '/errors/$error',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedGuideIndexRoute = AuthenticatedGuideIndexRouteImport.update({
+  id: '/guide/',
+  path: '/guide/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlansIndexRoute = AuthenticatedPlansIndexRouteImport.update({
+  id: '/plans/',
+  path: '/plans/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlaygroundIndexRoute =
+  AuthenticatedPlaygroundIndexRouteImport.update({
+    id: '/playground/',
+    path: '/playground/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProbeProfilesIndexRoute =
+  AuthenticatedProbeProfilesIndexRouteImport.update({
+    id: '/probe-profiles/',
+    path: '/probe-profiles/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProxyPoolIndexRoute =
+  AuthenticatedProxyPoolIndexRouteImport.update({
+    id: '/proxy-pool/',
+    path: '/proxy-pool/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedQuarantineIndexRoute =
+  AuthenticatedQuarantineIndexRouteImport.update({
+    id: '/quarantine/',
+    path: '/quarantine/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRequestAuditsIndexRoute =
+  AuthenticatedRequestAuditsIndexRouteImport.update({
+    id: '/request-audits/',
+    path: '/request-audits/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRequestAuditsLedgerRoute =
@@ -259,10 +189,87 @@ const AuthenticatedRequestAuditsLedgerRoute =
     path: '/request-audits/ledger',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedErrorsErrorRoute =
-  AuthenticatedErrorsErrorRouteImport.update({
-    id: '/errors/$error',
-    path: '/errors/$error',
+const AuthenticatedRequestAuditsScheduleRoute =
+  AuthenticatedRequestAuditsScheduleRouteImport.update({
+    id: '/request-audits/schedule',
+    path: '/request-audits/schedule',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRequestAuditsWorkspaceRoute =
+  AuthenticatedRequestAuditsWorkspaceRouteImport.update({
+    id: '/request-audits/workspace',
+    path: '/request-audits/workspace',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRunsIndexRoute = AuthenticatedRunsIndexRouteImport.update({
+  id: '/runs/',
+  path: '/runs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsIndexRoute =
+  AuthenticatedSettingsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsBootstrapRoute =
+  AuthenticatedSettingsBootstrapRouteImport.update({
+    id: '/bootstrap',
+    path: '/bootstrap',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsConnectionRoute =
+  AuthenticatedSettingsConnectionRouteImport.update({
+    id: '/connection',
+    path: '/connection',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsExecutionRoute =
+  AuthenticatedSettingsExecutionRouteImport.update({
+    id: '/execution',
+    path: '/execution',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsIntegrationsRoute =
+  AuthenticatedSettingsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsNotificationsRoute =
+  AuthenticatedSettingsNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsRequestAuditRoute =
+  AuthenticatedSettingsRequestAuditRouteImport.update({
+    id: '/request-audit',
+    path: '/request-audit',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsRiskRoute =
+  AuthenticatedSettingsRiskRouteImport.update({
+    id: '/risk',
+    path: '/risk',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsVersionRoute =
+  AuthenticatedSettingsVersionRouteImport.update({
+    id: '/version',
+    path: '/version',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSsoReportsIndexRoute =
+  AuthenticatedSsoReportsIndexRouteImport.update({
+    id: '/sso-reports/',
+    path: '/sso-reports/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedWorkersIndexRoute =
+  AuthenticatedWorkersIndexRouteImport.update({
+    id: '/workers/',
+    path: '/workers/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -299,6 +306,7 @@ export interface FileRoutesByFullPath {
   '/plans/': typeof AuthenticatedPlansIndexRoute
   '/playground/': typeof AuthenticatedPlaygroundIndexRoute
   '/probe-profiles/': typeof AuthenticatedProbeProfilesIndexRoute
+  '/proxy-pool/': typeof AuthenticatedProxyPoolIndexRoute
   '/quarantine/': typeof AuthenticatedQuarantineIndexRoute
   '/request-audits/': typeof AuthenticatedRequestAuditsIndexRoute
   '/runs/': typeof AuthenticatedRunsIndexRoute
@@ -338,6 +346,7 @@ export interface FileRoutesByTo {
   '/plans': typeof AuthenticatedPlansIndexRoute
   '/playground': typeof AuthenticatedPlaygroundIndexRoute
   '/probe-profiles': typeof AuthenticatedProbeProfilesIndexRoute
+  '/proxy-pool': typeof AuthenticatedProxyPoolIndexRoute
   '/quarantine': typeof AuthenticatedQuarantineIndexRoute
   '/request-audits': typeof AuthenticatedRequestAuditsIndexRoute
   '/runs': typeof AuthenticatedRunsIndexRoute
@@ -380,6 +389,7 @@ export interface FileRoutesById {
   '/_authenticated/plans/': typeof AuthenticatedPlansIndexRoute
   '/_authenticated/playground/': typeof AuthenticatedPlaygroundIndexRoute
   '/_authenticated/probe-profiles/': typeof AuthenticatedProbeProfilesIndexRoute
+  '/_authenticated/proxy-pool/': typeof AuthenticatedProxyPoolIndexRoute
   '/_authenticated/quarantine/': typeof AuthenticatedQuarantineIndexRoute
   '/_authenticated/request-audits/': typeof AuthenticatedRequestAuditsIndexRoute
   '/_authenticated/runs/': typeof AuthenticatedRunsIndexRoute
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/plans/'
     | '/playground/'
     | '/probe-profiles/'
+    | '/proxy-pool/'
     | '/quarantine/'
     | '/request-audits/'
     | '/runs/'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/plans'
     | '/playground'
     | '/probe-profiles'
+    | '/proxy-pool'
     | '/quarantine'
     | '/request-audits'
     | '/runs'
@@ -502,6 +514,7 @@ export interface FileRouteTypes {
     | '/_authenticated/plans/'
     | '/_authenticated/playground/'
     | '/_authenticated/probe-profiles/'
+    | '/_authenticated/proxy-pool/'
     | '/_authenticated/quarantine/'
     | '/_authenticated/request-audits/'
     | '/_authenticated/runs/'
@@ -528,11 +541,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/status': {
-      id: '/status'
-      path: '/status'
-      fullPath: '/status'
-      preLoaderRoute: typeof StatusRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -542,81 +555,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/': {
-      id: '/_authenticated/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/(errors)/503': {
-      id: '/(errors)/503'
-      path: '/503'
-      fullPath: '/503'
-      preLoaderRoute: typeof errors503RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/500': {
-      id: '/(errors)/500'
-      path: '/500'
-      fullPath: '/500'
-      preLoaderRoute: typeof errors500RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/404': {
-      id: '/(errors)/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof errors404RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/403': {
-      id: '/(errors)/403'
-      path: '/403'
-      fullPath: '/403'
-      preLoaderRoute: typeof errors403RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(errors)/401': {
-      id: '/(errors)/401'
-      path: '/401'
-      fullPath: '/401'
-      preLoaderRoute: typeof errors401RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/sign-up': {
-      id: '/(auth)/sign-up'
-      path: '/sign-up'
-      fullPath: '/sign-up'
-      preLoaderRoute: typeof authSignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/sign-in-2': {
-      id: '/(auth)/sign-in-2'
-      path: '/sign-in-2'
-      fullPath: '/sign-in-2'
-      preLoaderRoute: typeof authSignIn2RouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/sign-in': {
-      id: '/(auth)/sign-in'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof authSignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/otp': {
-      id: '/(auth)/otp'
-      path: '/otp'
-      fullPath: '/otp'
-      preLoaderRoute: typeof authOtpRouteImport
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/forgot-password': {
@@ -626,88 +569,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)/otp': {
+      id: '/(auth)/otp'
+      path: '/otp'
+      fullPath: '/otp'
+      preLoaderRoute: typeof authOtpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/sign-in': {
+      id: '/(auth)/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof authSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/sign-in-2': {
+      id: '/(auth)/sign-in-2'
+      path: '/sign-in-2'
+      fullPath: '/sign-in-2'
+      preLoaderRoute: typeof authSignIn2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/sign-up': {
+      id: '/(auth)/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof authSignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/401': {
+      id: '/(errors)/401'
+      path: '/401'
+      fullPath: '/401'
+      preLoaderRoute: typeof errors401RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/403': {
+      id: '/(errors)/403'
+      path: '/403'
+      fullPath: '/403'
+      preLoaderRoute: typeof errors403RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/404': {
+      id: '/(errors)/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof errors404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/500': {
+      id: '/(errors)/500'
+      path: '/500'
+      fullPath: '/500'
+      preLoaderRoute: typeof errors500RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(errors)/503': {
+      id: '/(errors)/503'
+      path: '/503'
+      fullPath: '/503'
+      preLoaderRoute: typeof errors503RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/workers/': {
-      id: '/_authenticated/workers/'
-      path: '/workers'
-      fullPath: '/workers/'
-      preLoaderRoute: typeof AuthenticatedWorkersIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/sso-reports/': {
-      id: '/_authenticated/sso-reports/'
-      path: '/sso-reports'
-      fullPath: '/sso-reports/'
-      preLoaderRoute: typeof AuthenticatedSsoReportsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/settings/': {
-      id: '/_authenticated/settings/'
-      path: '/'
-      fullPath: '/settings/'
-      preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/runs/': {
-      id: '/_authenticated/runs/'
-      path: '/runs'
-      fullPath: '/runs/'
-      preLoaderRoute: typeof AuthenticatedRunsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/request-audits/': {
-      id: '/_authenticated/request-audits/'
-      path: '/request-audits'
-      fullPath: '/request-audits/'
-      preLoaderRoute: typeof AuthenticatedRequestAuditsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/quarantine/': {
-      id: '/_authenticated/quarantine/'
-      path: '/quarantine'
-      fullPath: '/quarantine/'
-      preLoaderRoute: typeof AuthenticatedQuarantineIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/probe-profiles/': {
-      id: '/_authenticated/probe-profiles/'
-      path: '/probe-profiles'
-      fullPath: '/probe-profiles/'
-      preLoaderRoute: typeof AuthenticatedProbeProfilesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/playground/': {
-      id: '/_authenticated/playground/'
-      path: '/playground'
-      fullPath: '/playground/'
-      preLoaderRoute: typeof AuthenticatedPlaygroundIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/plans/': {
-      id: '/_authenticated/plans/'
-      path: '/plans'
-      fullPath: '/plans/'
-      preLoaderRoute: typeof AuthenticatedPlansIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/guide/': {
-      id: '/_authenticated/guide/'
-      path: '/guide'
-      fullPath: '/guide/'
-      preLoaderRoute: typeof AuthenticatedGuideIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/egress-nodes/': {
-      id: '/_authenticated/egress-nodes/'
-      path: '/egress-nodes'
-      fullPath: '/egress-nodes/'
-      preLoaderRoute: typeof AuthenticatedEgressNodesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/accounts/': {
@@ -717,74 +653,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/settings/version': {
-      id: '/_authenticated/settings/version'
-      path: '/version'
-      fullPath: '/settings/version'
-      preLoaderRoute: typeof AuthenticatedSettingsVersionRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/risk': {
-      id: '/_authenticated/settings/risk'
-      path: '/risk'
-      fullPath: '/settings/risk'
-      preLoaderRoute: typeof AuthenticatedSettingsRiskRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/request-audit': {
-      id: '/_authenticated/settings/request-audit'
-      path: '/request-audit'
-      fullPath: '/settings/request-audit'
-      preLoaderRoute: typeof AuthenticatedSettingsRequestAuditRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/notifications': {
-      id: '/_authenticated/settings/notifications'
-      path: '/notifications'
-      fullPath: '/settings/notifications'
-      preLoaderRoute: typeof AuthenticatedSettingsNotificationsRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/integrations': {
-      id: '/_authenticated/settings/integrations'
-      path: '/integrations'
-      fullPath: '/settings/integrations'
-      preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/execution': {
-      id: '/_authenticated/settings/execution'
-      path: '/execution'
-      fullPath: '/settings/execution'
-      preLoaderRoute: typeof AuthenticatedSettingsExecutionRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/connection': {
-      id: '/_authenticated/settings/connection'
-      path: '/connection'
-      fullPath: '/settings/connection'
-      preLoaderRoute: typeof AuthenticatedSettingsConnectionRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/settings/bootstrap': {
-      id: '/_authenticated/settings/bootstrap'
-      path: '/bootstrap'
-      fullPath: '/settings/bootstrap'
-      preLoaderRoute: typeof AuthenticatedSettingsBootstrapRouteImport
-      parentRoute: typeof AuthenticatedSettingsRouteRoute
-    }
-    '/_authenticated/request-audits/workspace': {
-      id: '/_authenticated/request-audits/workspace'
-      path: '/request-audits/workspace'
-      fullPath: '/request-audits/workspace'
-      preLoaderRoute: typeof AuthenticatedRequestAuditsWorkspaceRouteImport
+    '/_authenticated/egress-nodes/': {
+      id: '/_authenticated/egress-nodes/'
+      path: '/egress-nodes'
+      fullPath: '/egress-nodes/'
+      preLoaderRoute: typeof AuthenticatedEgressNodesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/request-audits/schedule': {
-      id: '/_authenticated/request-audits/schedule'
-      path: '/request-audits/schedule'
-      fullPath: '/request-audits/schedule'
-      preLoaderRoute: typeof AuthenticatedRequestAuditsScheduleRouteImport
+    '/_authenticated/errors/$error': {
+      id: '/_authenticated/errors/$error'
+      path: '/errors/$error'
+      fullPath: '/errors/$error'
+      preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/guide/': {
+      id: '/_authenticated/guide/'
+      path: '/guide'
+      fullPath: '/guide/'
+      preLoaderRoute: typeof AuthenticatedGuideIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/plans/': {
+      id: '/_authenticated/plans/'
+      path: '/plans'
+      fullPath: '/plans/'
+      preLoaderRoute: typeof AuthenticatedPlansIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/playground/': {
+      id: '/_authenticated/playground/'
+      path: '/playground'
+      fullPath: '/playground/'
+      preLoaderRoute: typeof AuthenticatedPlaygroundIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/probe-profiles/': {
+      id: '/_authenticated/probe-profiles/'
+      path: '/probe-profiles'
+      fullPath: '/probe-profiles/'
+      preLoaderRoute: typeof AuthenticatedProbeProfilesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/proxy-pool/': {
+      id: '/_authenticated/proxy-pool/'
+      path: '/proxy-pool'
+      fullPath: '/proxy-pool/'
+      preLoaderRoute: typeof AuthenticatedProxyPoolIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/quarantine/': {
+      id: '/_authenticated/quarantine/'
+      path: '/quarantine'
+      fullPath: '/quarantine/'
+      preLoaderRoute: typeof AuthenticatedQuarantineIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/request-audits/': {
+      id: '/_authenticated/request-audits/'
+      path: '/request-audits'
+      fullPath: '/request-audits/'
+      preLoaderRoute: typeof AuthenticatedRequestAuditsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/request-audits/ledger': {
@@ -794,11 +723,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRequestAuditsLedgerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/errors/$error': {
-      id: '/_authenticated/errors/$error'
-      path: '/errors/$error'
-      fullPath: '/errors/$error'
-      preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
+    '/_authenticated/request-audits/schedule': {
+      id: '/_authenticated/request-audits/schedule'
+      path: '/request-audits/schedule'
+      fullPath: '/request-audits/schedule'
+      preLoaderRoute: typeof AuthenticatedRequestAuditsScheduleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/request-audits/workspace': {
+      id: '/_authenticated/request-audits/workspace'
+      path: '/request-audits/workspace'
+      fullPath: '/request-audits/workspace'
+      preLoaderRoute: typeof AuthenticatedRequestAuditsWorkspaceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/runs/': {
+      id: '/_authenticated/runs/'
+      path: '/runs'
+      fullPath: '/runs/'
+      preLoaderRoute: typeof AuthenticatedRunsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings/': {
+      id: '/_authenticated/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/bootstrap': {
+      id: '/_authenticated/settings/bootstrap'
+      path: '/bootstrap'
+      fullPath: '/settings/bootstrap'
+      preLoaderRoute: typeof AuthenticatedSettingsBootstrapRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/connection': {
+      id: '/_authenticated/settings/connection'
+      path: '/connection'
+      fullPath: '/settings/connection'
+      preLoaderRoute: typeof AuthenticatedSettingsConnectionRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/execution': {
+      id: '/_authenticated/settings/execution'
+      path: '/execution'
+      fullPath: '/settings/execution'
+      preLoaderRoute: typeof AuthenticatedSettingsExecutionRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/integrations': {
+      id: '/_authenticated/settings/integrations'
+      path: '/integrations'
+      fullPath: '/settings/integrations'
+      preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/notifications': {
+      id: '/_authenticated/settings/notifications'
+      path: '/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof AuthenticatedSettingsNotificationsRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/request-audit': {
+      id: '/_authenticated/settings/request-audit'
+      path: '/request-audit'
+      fullPath: '/settings/request-audit'
+      preLoaderRoute: typeof AuthenticatedSettingsRequestAuditRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/risk': {
+      id: '/_authenticated/settings/risk'
+      path: '/risk'
+      fullPath: '/settings/risk'
+      preLoaderRoute: typeof AuthenticatedSettingsRiskRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/version': {
+      id: '/_authenticated/settings/version'
+      path: '/version'
+      fullPath: '/settings/version'
+      preLoaderRoute: typeof AuthenticatedSettingsVersionRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/sso-reports/': {
+      id: '/_authenticated/sso-reports/'
+      path: '/sso-reports'
+      fullPath: '/sso-reports/'
+      preLoaderRoute: typeof AuthenticatedSsoReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/workers/': {
+      id: '/_authenticated/workers/'
+      path: '/workers'
+      fullPath: '/workers/'
+      preLoaderRoute: typeof AuthenticatedWorkersIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -850,6 +870,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlansIndexRoute: typeof AuthenticatedPlansIndexRoute
   AuthenticatedPlaygroundIndexRoute: typeof AuthenticatedPlaygroundIndexRoute
   AuthenticatedProbeProfilesIndexRoute: typeof AuthenticatedProbeProfilesIndexRoute
+  AuthenticatedProxyPoolIndexRoute: typeof AuthenticatedProxyPoolIndexRoute
   AuthenticatedQuarantineIndexRoute: typeof AuthenticatedQuarantineIndexRoute
   AuthenticatedRequestAuditsIndexRoute: typeof AuthenticatedRequestAuditsIndexRoute
   AuthenticatedRunsIndexRoute: typeof AuthenticatedRunsIndexRoute
@@ -872,6 +893,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlansIndexRoute: AuthenticatedPlansIndexRoute,
   AuthenticatedPlaygroundIndexRoute: AuthenticatedPlaygroundIndexRoute,
   AuthenticatedProbeProfilesIndexRoute: AuthenticatedProbeProfilesIndexRoute,
+  AuthenticatedProxyPoolIndexRoute: AuthenticatedProxyPoolIndexRoute,
   AuthenticatedQuarantineIndexRoute: AuthenticatedQuarantineIndexRoute,
   AuthenticatedRequestAuditsIndexRoute: AuthenticatedRequestAuditsIndexRoute,
   AuthenticatedRunsIndexRoute: AuthenticatedRunsIndexRoute,

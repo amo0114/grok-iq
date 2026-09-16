@@ -16,6 +16,7 @@ from app.persistence.auth_repository import AuthRepository
 from app.persistence.chat_provider_repository import ChatProviderRepository
 from app.persistence.database import Database
 from app.persistence.probe_repository import ProbeRepository
+from app.persistence.proxy_pool_repository import ProxyPoolRepository
 from app.persistence.register_event_repository import RegisterEventRepository
 from app.persistence.request_audit_repository import RequestAuditRepository
 from app.persistence.settings_repository import SettingsRepository
@@ -25,6 +26,7 @@ from app.services.auth_service import AuthService
 from app.services.chat_service import ChatService
 from app.services.egress_service import EgressService
 from app.services.probe_manager import ProbeManager
+from app.services.proxy_pool_service import ProxyPoolService
 from app.services.quality_retry_isolation import QualityRetryIsolationService
 from app.services.register_integration import RegisterIntegrationService
 from app.services.request_audit_service import RequestAuditService
@@ -49,6 +51,7 @@ request_audit_repository = RequestAuditRepository(database)
 settings_repository = SettingsRepository(database, settings)
 register_event_repository = RegisterEventRepository(database)
 sso_report_repository = SsoReportRepository(database)
+proxy_pool_repository = ProxyPoolRepository(database)
 runtime_settings_service = RuntimeSettingsService(settings, settings_repository)
 auth_service = AuthService(settings, auth_repository)
 chat_service = ChatService(settings=settings, providers=chat_provider_repository)
@@ -123,6 +126,10 @@ register_integration_service = RegisterIntegrationService(
     notifications=wechat_notification_service,
 )
 probe_manager.register_integration = register_integration_service
+proxy_pool_service = ProxyPoolService(
+    settings=settings,
+    repository=proxy_pool_repository,
+)
 update_check_service = UpdateCheckService()
 
 
@@ -157,9 +164,11 @@ async def lifespan(_: FastAPI):
     await sso_report_service.start()
     await scheduler_service.start()
     await update_check_service.start()
+    await proxy_pool_service.start()
     try:
         yield
     finally:
+        await proxy_pool_service.stop()
         await update_check_service.stop()
         await scheduler_service.stop()
         await sso_report_service.stop()
@@ -201,6 +210,7 @@ app.include_router(
         register_integration=register_integration_service,
         wechat_notifications=wechat_notification_service,
         updates=update_check_service,
+        proxy_pool=proxy_pool_service,
     )
 )
 

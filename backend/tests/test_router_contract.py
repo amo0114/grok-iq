@@ -109,6 +109,14 @@ EXPECTED_ROUTES = {
     ("DELETE", "/api/sso-reports"),
     ("GET", "/api/sso-reports/{report_id}"),
     ("DELETE", "/api/sso-reports/{report_id}"),
+    ("GET", "/api/proxy-pool/config"),
+    ("PUT", "/api/proxy-pool/config"),
+    ("GET", "/api/proxy-pool/groups"),
+    ("POST", "/api/proxy-pool/preview"),
+    ("POST", "/api/proxy-pool/import"),
+    ("POST", "/api/proxy-pool/refresh"),
+    ("POST", "/api/proxy-pool/groups/{group_id}/refresh"),
+    ("DELETE", "/api/proxy-pool/groups"),
 }
 
 PUBLIC_PATHS = {
@@ -145,6 +153,7 @@ def build_test_router():
         register_integration=MagicMock(),
         wechat_notifications=MagicMock(),
         updates=MagicMock(),
+        proxy_pool=MagicMock(),
     )
 
 

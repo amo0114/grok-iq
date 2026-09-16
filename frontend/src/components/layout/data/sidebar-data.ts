@@ -1,6 +1,7 @@
 import {
   Activity,
   BookOpenCheck,
+  Boxes,
   CalendarClock,
   Cpu,
   Gauge,
@@ -52,6 +53,7 @@ export const sidebarData: SidebarData = {
       items: [
         { title: '判定说明', url: '/guide', icon: BookOpenCheck },
         { title: '上游节点', url: '/egress-nodes', icon: Network },
+        { title: '代理池', url: '/proxy-pool', icon: Boxes },
         { title: '系统设置', url: '/settings', icon: Settings2 },
       ],
     },

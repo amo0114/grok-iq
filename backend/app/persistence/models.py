@@ -629,6 +629,42 @@ class RegisterCallbackDelivery(Base):
     completed_at: Mapped[datetime | None] = mapped_column(AppDateTime())
 
 
+class ProxyPoolGroup(Base):
+    """One Resin subscription managed by the 1024proxy proxy pool tool.
+
+    The proxy list itself is a short-lived lease, so GrokIQ keeps the current
+    batch and the Resin subscription id it published to. Rows are only created
+    and refreshed by the import tool, never by the account probe pipeline.
+    """
+
+    __tablename__ = "proxy_pool_groups"
+    __table_args__ = (
+        UniqueConstraint("name", name="uq_proxy_pool_groups_name"),
+        Index("ix_proxy_pool_groups_lease", "lease_expires_at"),
+        Index("ix_proxy_pool_groups_subscription", "subscription_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    group_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    subscription_id: Mapped[str] = mapped_column(
+        String(64), default="", nullable=False
+    )
+    size: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    scheme: Mapped[str] = mapped_column(String(16), default="socks5", nullable=False)
+    proxies: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
+    status: Mapped[str] = mapped_column(String(24), default="pending", nullable=False)
+    last_error: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    last_refreshed_at: Mapped[datetime | None] = mapped_column(AppDateTime())
+    lease_expires_at: Mapped[datetime | None] = mapped_column(AppDateTime())
+    created_at: Mapped[datetime] = mapped_column(
+        AppDateTime(), default=utc_now, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        AppDateTime(), default=utc_now, onupdate=utc_now, nullable=False
+    )
+
+
 def model_dict(value: Any) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for column in value.__table__.columns:

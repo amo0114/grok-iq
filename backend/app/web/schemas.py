@@ -642,6 +642,40 @@ class ProfileInput(BaseModel):
     enabled: bool = True
 
 
+class ProxyPoolConfigInput(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, str_strip_whitespace=True)
+
+    api_url_template: str | None = Field(
+        default=None, alias="apiUrlTemplate", max_length=4000
+    )
+    resin_base_url: str | None = Field(
+        default=None, alias="resinBaseUrl", max_length=500
+    )
+    resin_admin_token: str | None = Field(
+        default=None, alias="resinAdminToken", max_length=4000
+    )
+    group_size: int | None = Field(default=None, alias="groupSize", ge=1, le=1000)
+    target_ip_count: int | None = Field(
+        default=None, alias="targetIpCount", ge=1, le=100_000
+    )
+    lease_hours: int | None = Field(default=None, alias="leaseHours", ge=1, le=720)
+    scheme: Literal["http", "https", "socks5", "socks5h"] | None = None
+    subscription_prefix: str | None = Field(
+        default=None, alias="subscriptionPrefix", max_length=48
+    )
+    auto_refresh_enabled: bool | None = Field(
+        default=None, alias="autoRefreshEnabled"
+    )
+
+
+class ProxyPoolImportInput(BaseModel):
+    total: int | None = Field(default=None, ge=1, le=100_000)
+
+
+class ProxyPoolDeleteInput(BaseModel):
+    ids: list[int] = Field(min_length=1, max_length=1000)
+
+
 class ProbePlanInput(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     description: str = Field(default="", max_length=500)

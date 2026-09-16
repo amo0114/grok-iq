@@ -56,9 +56,7 @@ export type PublicClientKeyQuota = {
   usagePercent: number
 }
 
-export type PublicClientKeyQuotaLookup =
-  | { found: false }
-  | PublicClientKeyQuota
+export type PublicClientKeyQuotaLookup = { found: false } | PublicClientKeyQuota
 
 export type ClientKeyUsagePeriod = '24h' | '7d' | '30d' | '90d' | 'custom'
 
@@ -154,9 +152,7 @@ export type PublicClientKeyUsage = {
   usage: ClientKeyUsageTotals
 }
 
-export type PublicClientKeyUsageLookup =
-  | { found: false }
-  | PublicClientKeyUsage
+export type PublicClientKeyUsageLookup = { found: false } | PublicClientKeyUsage
 
 export type AuthSession = {
   accessToken: string
@@ -210,11 +206,7 @@ export type RegisterWebhookEventStatus =
   'pending' | 'processing' | 'completed' | 'failed'
 
 export type RegisterPriorityHoldStatus =
-  | 'none'
-  | 'held'
-  | 'restored'
-  | 'restore_failed'
-  | 'kept'
+  'none' | 'held' | 'restored' | 'restore_failed' | 'kept'
 
 export type RegisterWebhookEvent = {
   event_id: string
@@ -589,11 +581,7 @@ export type AccountDetailResponse = {
 }
 
 export type TimelineItemType =
-  | 'sample'
-  | 'audit'
-  | 'isolate'
-  | 'restore'
-  | 'note'
+  'sample' | 'audit' | 'isolate' | 'restore' | 'note'
 
 export type TimelineItemHref =
   | '/runs'
@@ -687,6 +675,88 @@ export type EgressAccountDistributionResult = {
   skippedAccountIds: number[]
   failedAccountIds: number[]
   failures: { id: number; error: string }[]
+}
+
+export type ProxyPoolScheme = 'http' | 'https' | 'socks5' | 'socks5h'
+
+export type ProxyPoolConfig = {
+  apiUrlTemplateConfigured: boolean
+  resinBaseUrl: string
+  resinAdminTokenConfigured: boolean
+  groupSize: number
+  targetIpCount: number
+  leaseHours: number
+  scheme: ProxyPoolScheme
+  subscriptionPrefix: string
+  autoRefreshEnabled: boolean
+}
+
+export type ProxyPoolConfigInput = {
+  apiUrlTemplate?: string
+  resinBaseUrl?: string
+  resinAdminToken?: string
+  groupSize?: number
+  targetIpCount?: number
+  leaseHours?: number
+  scheme?: ProxyPoolScheme
+  subscriptionPrefix?: string
+  autoRefreshEnabled?: boolean
+}
+
+export type ProxyPoolGroup = {
+  id: number
+  index: number
+  name: string
+  subscriptionId: string
+  size: number
+  scheme: string
+  status: string
+  lastError: string
+  lastRefreshedAt: string | null
+  leaseExpiresAt: string | null
+  proxies: string[]
+  sample: string[]
+}
+
+export type ProxyPoolGroupsResponse = {
+  groups: ProxyPoolGroup[]
+  total: number
+  groupSize: number
+  leaseHours: number
+  prefix: string
+}
+
+export type ProxyPoolPreview = {
+  requested: number
+  fetched: number
+  groupSize: number
+  groupCount: number
+  groups: {
+    index: number
+    name: string
+    size: number
+    sample: string[]
+  }[]
+}
+
+export type ProxyPoolImportResult = {
+  requested: number
+  fetched: number
+  groupCount: number
+  created: number
+  updated: number
+  failed: number
+  failures: { name: string; error: string }[]
+  pruned: number
+  groups: ProxyPoolGroup[]
+}
+
+export type ProxyPoolDeleteResult = {
+  requested: number
+  deleted: number
+  missing: number[]
+  removedRemote: number
+  remoteErrors: { name?: string; error: string }[]
 }
 
 export type RequestAuditRiskLevel = 'normal' | 'watch' | 'high'
@@ -1373,10 +1443,7 @@ export type RiskRuleOverride = {
 }
 
 export type ReasoningPolicyMode =
-  | 'required'
-  | 'observe'
-  | 'optional'
-  | 'unsupported'
+  'required' | 'observe' | 'optional' | 'unsupported'
 
 export type ReasoningMediaInputMode = 'inherit' | 'observe' | 'ignore'
 
@@ -1391,9 +1458,7 @@ export type ReasoningModelPolicy = {
 
 export type AutoIsolationMinStatus = 'watch' | 'suspect' | 'high_risk'
 export type ProbeTpsOverrideMode =
-  | 'off'
-  | 'generation_window'
-  | 'missing_reasoning'
+  'off' | 'generation_window' | 'missing_reasoning'
 
 export type RuntimeSettings = {
   grok2apiBaseUrl: string
@@ -1510,6 +1575,9 @@ export type SecretSettingName =
   | 'grokRegisterWebhookToken'
   | 'ssoProxy'
   | 'wechatAppSecret'
+
+export type ProxyPoolSecretName =
+  'proxyPoolApiUrlTemplate' | 'proxyPoolResinAdminToken'
 
 export type RuntimeSettingsUpdate = Partial<
   Pick<
@@ -1743,7 +1811,6 @@ type RuntimeSettingsWire = Omit<
   requestAuditIsolationEnabled?: boolean
   requestAuditRetentionDays?: number
 }
-
 
 function normalizeAutoIsolationMinStatus(
   value: unknown
@@ -2525,9 +2592,7 @@ async function accountBatchAction(body: {
               account_ids: accountBatch,
               action: body.action,
               ...(body.note ? { note: body.note } : {}),
-              ...(body.propagate != null
-                ? { propagate: body.propagate }
-                : {}),
+              ...(body.propagate != null ? { propagate: body.propagate } : {}),
               ...(body.quarantine_minutes != null
                 ? { quarantine_minutes: body.quarantine_minutes }
                 : {}),
@@ -3096,20 +3161,50 @@ export const api = {
     request<EgressNodeProbeResult>(`/egress-nodes/${nodeId}/test`, {
       method: 'POST',
     }),
-  distributeAccountsToEgress: (
-    nodeIds: number[],
-    accountsPerNode: number
-  ) =>
-    request<EgressAccountDistributionResult>(
-      '/egress-nodes/bind-accounts',
+  distributeAccountsToEgress: (nodeIds: number[], accountsPerNode: number) =>
+    request<EgressAccountDistributionResult>('/egress-nodes/bind-accounts', {
+      method: 'POST',
+      body: JSON.stringify({
+        node_ids: nodeIds,
+        accountsPerNode,
+      }),
+    }),
+  proxyPoolConfig: () =>
+    request<ProxyPoolConfig>('/proxy-pool/config', { cache: 'no-store' }),
+  updateProxyPoolConfig: (body: ProxyPoolConfigInput) =>
+    request<{ changed: string[]; config: ProxyPoolConfig }>(
+      '/proxy-pool/config',
       {
-        method: 'POST',
-        body: JSON.stringify({
-          node_ids: nodeIds,
-          accountsPerNode,
-        }),
+        method: 'PUT',
+        body: JSON.stringify(body),
       }
     ),
+  proxyPoolGroups: () =>
+    request<ProxyPoolGroupsResponse>('/proxy-pool/groups', {
+      cache: 'no-store',
+    }),
+  previewProxyPool: (total?: number) =>
+    request<ProxyPoolPreview>('/proxy-pool/preview', {
+      method: 'POST',
+      body: JSON.stringify({ total }),
+    }),
+  importProxyPool: (total?: number) =>
+    request<ProxyPoolImportResult>('/proxy-pool/import', {
+      method: 'POST',
+      body: JSON.stringify({ total }),
+    }),
+  refreshProxyPool: () =>
+    request<ProxyPoolImportResult>('/proxy-pool/refresh', { method: 'POST' }),
+  refreshProxyPoolGroup: (groupId: number) =>
+    request<{ action: string; group: ProxyPoolGroup }>(
+      `/proxy-pool/groups/${groupId}/refresh`,
+      { method: 'POST' }
+    ),
+  deleteProxyPoolGroups: (ids: number[]) =>
+    request<ProxyPoolDeleteResult>('/proxy-pool/groups', {
+      method: 'DELETE',
+      body: JSON.stringify({ ids }),
+    }),
   profiles: () => request<ProbeProfile[]>('/probe-profiles'),
   createProfile: (body: Record<string, unknown>) =>
     request<{ id: string }>('/probe-profiles', {
@@ -3240,7 +3335,7 @@ export const api = {
   settings: () =>
     request<RuntimeSettingsWire>('/settings').then(normalizeRuntimeSettings),
   editableSettings: loadEditableRuntimeSettings,
-  revealSettingSecret: (name: SecretSettingName) =>
+  revealSettingSecret: (name: SecretSettingName | ProxyPoolSecretName) =>
     request<{ value: string }>(`/settings/secrets/${name}`, {
       cache: 'no-store',
     }),

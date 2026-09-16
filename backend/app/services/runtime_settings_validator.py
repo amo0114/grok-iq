@@ -28,6 +28,7 @@ class RuntimeSettingsValidator:
         self._normalize_register_callback(candidate)
         self._normalize_wechat(candidate)
         self._normalize_sso_proxy(candidate)
+        self._normalize_proxy_pool(candidate)
         return candidate
 
     @staticmethod
@@ -245,3 +246,40 @@ class RuntimeSettingsValidator:
             candidate.sso_proxy = ""
             return
         candidate.sso_proxy = normalize_proxy(raw)
+
+    @staticmethod
+    def _normalize_proxy_pool(candidate: Settings) -> None:
+        candidate.proxy_pool_1024_api_url_template = (
+            candidate.proxy_pool_1024_api_url_template or ""
+        ).strip()
+        candidate.proxy_pool_resin_admin_token = (
+            candidate.proxy_pool_resin_admin_token or ""
+        ).strip()
+        candidate.proxy_pool_resin_base_url = (
+            candidate.proxy_pool_resin_base_url or ""
+        ).strip().rstrip("/")
+
+        prefix = (candidate.proxy_pool_subscription_prefix or "").strip()
+        if prefix and not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,47}", prefix):
+            raise ValueError(
+                "代理池订阅前缀需为 1-48 位字母、数字、点、下划线或连字符"
+            )
+        candidate.proxy_pool_subscription_prefix = prefix
+
+        scheme = (candidate.proxy_pool_scheme or "").strip().lower()
+        if scheme not in {"http", "https", "socks5", "socks5h"}:
+            raise ValueError("代理池协议仅支持 http、https、socks5 或 socks5h")
+        candidate.proxy_pool_scheme = scheme
+
+        if candidate.proxy_pool_resin_base_url:
+            parsed = urlsplit(candidate.proxy_pool_resin_base_url)
+            if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+                raise ValueError("Resin 地址必须是有效的 HTTP(S) URL")
+
+        if candidate.proxy_pool_auto_refresh_enabled:
+            if not candidate.proxy_pool_1024_api_url_template:
+                raise ValueError("开启自动刷新前请填写 1024proxy 提取链接模板")
+            if "{num}" not in candidate.proxy_pool_1024_api_url_template:
+                raise ValueError("1024proxy 提取链接模板必须包含 {num} 占位符")
+            if not candidate.proxy_pool_resin_base_url:
+                raise ValueError("开启自动刷新前请填写 Resin 地址")

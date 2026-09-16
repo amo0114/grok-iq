@@ -99,6 +99,18 @@ class Settings(BaseSettings):
     grok_register_webhook_token: str = ""
     # Optional proxy for SSO checks. Empty allows direct egress.
     sso_proxy: str = ""
+    # Proxy pool tool. GrokIQ pulls short-lived residential proxies from
+    # 1024proxy.com and publishes them into Resin subscriptions, one per
+    # batch, then refreshes each batch after the lease expires.
+    proxy_pool_1024_api_url_template: str = ""
+    proxy_pool_resin_base_url: str = "http://resin:2260"
+    proxy_pool_resin_admin_token: str = ""
+    proxy_pool_group_size: int = Field(default=50, ge=1, le=1000)
+    proxy_pool_target_ip_count: int = Field(default=50, ge=1, le=100_000)
+    proxy_pool_lease_hours: int = Field(default=24, ge=1, le=720)
+    proxy_pool_scheme: str = "socks5"
+    proxy_pool_subscription_prefix: str = "grokiq-1024"
+    proxy_pool_auto_refresh_enabled: bool = False
     initial_probe_on_register: bool = True
     register_probe_stabilization_seconds: float = Field(
         default=DEFAULT_REGISTER_PROBE_STABILIZATION_SECONDS,
@@ -251,6 +263,15 @@ class Settings(BaseSettings):
         "grok2api_http_impersonate",
         "grok_register_webhook_token",
         "sso_proxy",
+        "proxy_pool_1024_api_url_template",
+        "proxy_pool_resin_base_url",
+        "proxy_pool_resin_admin_token",
+        "proxy_pool_group_size",
+        "proxy_pool_target_ip_count",
+        "proxy_pool_lease_hours",
+        "proxy_pool_scheme",
+        "proxy_pool_subscription_prefix",
+        "proxy_pool_auto_refresh_enabled",
         "initial_probe_on_register",
         "register_probe_stabilization_seconds",
         "register_probe_profile_ids",
@@ -344,6 +365,8 @@ class Settings(BaseSettings):
             "grok_register_webhook_token",
             "sso_proxy",
             "wechat_app_secret",
+            "proxy_pool_1024_api_url_template",
+            "proxy_pool_resin_admin_token",
         }
     )
 

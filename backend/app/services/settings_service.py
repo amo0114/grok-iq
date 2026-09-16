@@ -366,7 +366,27 @@ class RuntimeSettingsService:
             "grokRegisterWebhookToken": self.settings.grok_register_webhook_token,
             "ssoProxy": self.settings.sso_proxy,
             "wechatAppSecret": self.settings.wechat_app_secret,
+            "proxyPoolApiUrlTemplate": (
+                self.settings.proxy_pool_1024_api_url_template
+            ),
+            "proxyPoolResinAdminToken": (
+                self.settings.proxy_pool_resin_admin_token
+            ),
         }
         if name not in secrets:
             raise ValueError("不支持读取该敏感设置")
         return secrets[name]
+
+    def proxy_pool_view(self) -> dict[str, Any]:
+        s = self.settings
+        return {
+            "apiUrlTemplateConfigured": bool(s.proxy_pool_1024_api_url_template),
+            "resinBaseUrl": s.proxy_pool_resin_base_url,
+            "resinAdminTokenConfigured": bool(s.proxy_pool_resin_admin_token),
+            "groupSize": s.proxy_pool_group_size,
+            "targetIpCount": s.proxy_pool_target_ip_count,
+            "leaseHours": s.proxy_pool_lease_hours,
+            "scheme": s.proxy_pool_scheme,
+            "subscriptionPrefix": s.proxy_pool_subscription_prefix,
+            "autoRefreshEnabled": s.proxy_pool_auto_refresh_enabled,
+        }
